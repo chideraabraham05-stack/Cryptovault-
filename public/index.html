@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CryptoVault — Digital Asset Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#080b0f;--surface:#0d1117;--border:#1a2535;
+  --accent:#00ff9d;--accent2:#00c8ff;--accent3:#ff3e6c;
+  --text:#e2e8f0;--muted:#4e6a7a;--card:#0f1923;
+  --glow:0 0 24px rgba(0,255,157,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,157,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,157,.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0}
+
+/* Orbs */
+.orb{position:fixed;border-radius:50%;filter:blur(130px);opacity:.1;pointer-events:none;z-index:0}
+.orb1{width:700px;height:700px;background:var(--accent);top:-250px;left:-250px}
+.orb2{width:600px;height:600px;background:var(--accent2);bottom:-200px;right:-200px}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;background:rgba(8,11,15,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Space Mono',monospace;font-size:1.15rem;color:var(--accent);display:flex;align-items:center;gap:.4rem;letter-spacing:-.02em;text-decoration:none}
+.logo span{color:var(--text)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover{color:var(--accent)}
+.nav-right{display:flex;align-items:center;gap:.75rem}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.2rem;border-radius:6px;font-family:'Space Mono',monospace;font-size:.78rem;cursor:pointer;transition:all .2s;border:none;font-weight:700}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{box-shadow:0 0 28px rgba(0,255,157,.45);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:transparent;color:var(--accent);border:1px solid rgba(0,255,157,.4)}
+.btn-ghost:hover{background:rgba(0,255,157,.08);border-color:var(--accent)}
+.btn-sm{padding:.35rem .8rem;font-size:.7rem}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:1;text-align:center;padding:5.5rem 1rem 3rem}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:'Space Mono',monospace;font-size:.68rem;color:var(--accent);border:1px solid rgba(0,255,157,.35);border-radius:100px;padding:.3rem 1rem;margin-bottom:1.75rem;letter-spacing:.08em;animation:pulseBorder 2.5s infinite}
+@keyframes pulseBorder{0%,100%{box-shadow:0 0 0 0 rgba(0,255,157,.3)}50%{box-shadow:0 0 0 7px rgba(0,255,157,0)}}
+.live-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px var(--accent);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-size:clamp(2.5rem,6vw,5.5rem);font-weight:800;line-height:1.04;letter-spacing:-.04em;margin-bottom:1.5rem}
+.hero h1 .hl{color:var(--accent)}
+.hero p{color:var(--muted);max-width:500px;margin:0 auto 2.5rem;font-size:1rem;line-height:1.75}
+.hero-cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.hero-cta .btn{padding:.8rem 2rem;font-size:.88rem}
+
+/* ── TICKER ── */
+.ticker-wrap{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);padding:.65rem 0;position:relative;z-index:1}
+.ticker-track{display:flex;gap:3rem;animation:ticker 35s linear infinite;width:max-content}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-item{display:flex;align-items:center;gap:.6rem;font-family:'Space Mono',monospace;font-size:.75rem;white-space:nowrap;color:var(--muted)}
+.ticker-item b{color:var(--text)}
+.up{color:var(--accent)}.down{color:var(--accent3)}
+
+/* ── LAYOUT ── */
+.container{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:2rem 1.5rem}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:0 0 2.5rem}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.4rem 1.5rem;position:relative;overflow:hidden;transition:border-color .25s,box-shadow .25s}
+.stat-card:hover{border-color:rgba(0,255,157,.5);box-shadow:var(--glow)}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));opacity:0;transition:opacity .25s}
+.stat-card:hover::after{opacity:1}
+.stat-label{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem}
+.stat-value{font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent)}
+.stat-sub{font-size:.72rem;color:var(--muted);margin-top:.3rem}
+
+/* ── SECTION ── */
+.section{margin-bottom:2.5rem}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+.section-title{font-size:1.1rem;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:.6rem}
+.dot{width:8px;height:8px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px var(--accent)}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:620px}
+thead th{font-family:'Space Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:.9rem 1.2rem;text-align:left;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap}
+thead th:not(:first-child){text-align:right}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(0,255,157,.04)}
+tbody td{padding:.9rem 1.2rem;font-family:'Space Mono',monospace;font-size:.82rem}
+tbody td:not(:first-child){text-align:right}
+.coin-cell{display:flex;align-items:center;gap:.75rem}
+.coin-icon{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--border)}
+.coin-name{font-weight:700;color:var(--text);font-size:.88rem}
+.coin-sym{color:var(--muted);font-size:.7rem;text-transform:uppercase}
+.rank-num{color:var(--muted);font-size:.75rem}
+.loading-cell{text-align:center !important;color:var(--muted);padding:3rem !important}
+
+/* ── GRID ── */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:800px){.dash-grid{grid-template-columns:1fr}}
+
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem}
+.card-title{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.2rem;display:flex;align-items:center;gap:.5rem}
+
+/* ── CHART ── */
+.chart-container{height:270px;position:relative}
+.chart-tabs{display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap}
+.chart-tab{font-family:'Space Mono',monospace;font-size:.67rem;padding:.28rem .7rem;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+.chart-tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+
+/* ── SWAP ── */
+.swap-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:.6rem}
+.swap-label{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+.swap-row{display:flex;align-items:center;gap:.75rem}
+.swap-input{flex:1;background:transparent;border:none;outline:none;font-family:'Space Mono',monospace;font-size:1.35rem;color:var(--text);width:100%;min-width:0}
+.swap-input::placeholder{color:var(--muted)}
+.swap-input:read-only{color:var(--muted)}
+.token-select{background:var(--border);border:none;outline:none;color:var(--text);font-family:'Space Mono',monospace;font-size:.78rem;font-weight:700;cursor:pointer;padding:.4rem .8rem;border-radius:100px;appearance:none;-webkit-appearance:none;white-space:nowrap}
+.swap-arrow-btn{display:flex;align-items:center;justify-content:center;width:34px;height:34px;background:var(--border);border-radius:50%;border:none;cursor:pointer;color:var(--accent);font-size:.9rem;margin:.2rem auto;transition:all .25s}
+.swap-arrow-btn:hover{background:rgba(0,255,157,.15);transform:rotate(180deg)}
+.swap-info{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);display:flex;justify-content:space-between;padding:.5rem 0;border-top:1px solid var(--border);margin-top:.5rem}
+.swap-info span{color:var(--text)}
+.btn-swap{width:100%;padding:.95rem;font-size:.88rem;border-radius:10px;margin-top:.75rem;justify-content:center}
+
+/* ── PORTFOLIO ── */
+.portfolio-total{font-family:'Space Mono',monospace;margin-bottom:1rem}
+.portfolio-total-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.portfolio-total-value{font-size:1.75rem;font-weight:700;color:var(--accent);margin-top:.25rem}
+.portfolio-asset{display:flex;align-items:center;justify-content:space-between;padding:.8rem 0;border-bottom:1px solid var(--border)}
+.portfolio-asset:last-child{border-bottom:none}
+.asset-left{display:flex;align-items:center;gap:.75rem}
+.asset-icon{width:36px;height:36px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem}
+.asset-name{font-weight:700;font-size:.88rem}
+.asset-bal{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted)}
+.asset-usd{font-family:'Space Mono',monospace;font-weight:700;font-size:.9rem}
+.asset-pct{font-family:'Space Mono',monospace;font-size:.7rem}
+
+/* ── TX HISTORY ── */
+.tx-item{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid var(--border);font-family:'Space Mono',monospace;font-size:.76rem}
+.tx-item:last-child{border-bottom:none}
+.tx-left{display:flex;align-items:center;gap:.6rem}
+.tx-icon-wrap{width:30px;height:30px;border-radius:50%;background:rgba(0,255,157,.1);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:.78rem}
+.tx-pair{color:var(--text);font-weight:700}
+.tx-time{color:var(--muted);font-size:.65rem}
+.tx-amount{text-align:right}
+.tx-from{color:var(--accent3)}
+.tx-to{color:var(--accent)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
+.empty i{font-size:2rem;margin-bottom:.75rem;display:block;opacity:.3}
+.empty p{font-family:'Space Mono',monospace;font-size:.75rem}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;width:100%;max-width:420px;position:relative;transform:translateY(18px);transition:transform .25s}
+.overlay.open .modal{transform:translateY(0)}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;transition:color .2s;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal h2{font-size:1.4rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.4rem}
+.modal-sub{color:var(--muted);font-size:.83rem;margin-bottom:1.5rem}
+.tab-row{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1.5rem}
+.tab-btn{flex:1;padding:.6rem;font-family:'Space Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;background:transparent;border:none;color:var(--muted);cursor:pointer;transition:all .2s}
+.tab-btn.active{background:var(--accent);color:#000;font-weight:700}
+.field{margin-bottom:1rem}
+.field label{display:block;font-family:'Space Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.4rem}
+.field input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;color:var(--text);font-family:'Space Mono',monospace;font-size:.85rem;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,255,157,.08)}
+.form-error{color:var(--accent3);font-family:'Space Mono',monospace;font-size:.72rem;margin-top:.75rem;min-height:1em}
+.btn-auth{width:100%;padding:.9rem;font-size:.88rem;justify-content:center;margin-top:1rem}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.6rem}
+.toast{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:.8rem 1.1rem;font-family:'Space Mono',monospace;font-size:.76rem;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.5);animation:toastIn .3s ease,toastOut .3s 3.7s forwards;max-width:300px}
+.toast.err{border-left-color:var(--accent3)}
+@keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(16px)}}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:1.75rem;text-align:center;font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted)}
+footer a{color:var(--accent);text-decoration:none}
+
+/* ── MISC ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.spin{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fade-up{opacity:0;transform:translateY(14px);animation:fadeUp .55s forwards}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.fade-up:nth-child(2){animation-delay:.1s}.fade-up:nth-child(3){animation-delay:.2s}.fade-up:nth-child(4){animation-delay:.3s}
+@media(max-width:640px){.nav-links{display:none}.hero{padding:3rem 1rem 2rem}}
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">⬡<span>CryptoVault</span></a>
+  <ul class="nav-links">
+    <li><a href="#market">Market</a></li>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#swap-section">Swap</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn btn-ghost btn-sm" onclick="contactSupport()">
+      <i class="fa-regular fa-envelope"></i> Support
+    </button>
+    <button class="btn btn-primary" id="auth-nav-btn" onclick="handleNavAuth()">
+      <i class="fa-solid fa-wallet"></i>
+      <span id="nav-btn-text">Connect Wallet</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">
+    <span class="live-dot"></span>
+    Live Market Data · Real-Time Prices
+  </div>
+  <h1>Your Digital Assets.<br/><span class="hl">Vault-Grade</span> Security.</h1>
+  <p>Track, swap, and manage your crypto portfolio in one powerful dashboard. Built for the next generation of DeFi.</p>
+  <div class="hero-cta">
+    <button class="btn btn-primary" onclick="openModal()">
+      <i class="fa-solid fa-rocket"></i> Get Started Free
+    </button>
+    <button class="btn btn-ghost" onclick="scrollTo('#market')">
+      <i class="fa-solid fa-chart-line"></i> View Markets
+    </button>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker"></div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card fade-up">
+      <div class="stat-label">Global Market Cap</div>
+      <div class="stat-value" id="s-mcap">—</div>
+      <div class="stat-sub">Total crypto market</div>
+    </div>
+    <div class="stat-card fade-up">
+      <div class="stat-label">24h Volume</div>
+      <div class="stat-value" id="s-vol">—</div>
+      <div class="stat-sub">Across all markets</div>
+    </div>
+    <div class="stat-card fade-up">
+      <div class="stat-label">BTC Dominance</div>
+      <div class="stat-value" id="s-dom">—</div>
+      <div class="stat-sub">Bitcoin market share</div>
+    </div>
+    <div class="stat-card fade-up">
+      <div class="stat-label">Active Cryptos</div>
+      <div class="stat-value" id="s-coins">—</div>
+      <div class="stat-sub">Listed assets</div>
+    </div>
+  </div>
+
+  <!-- Market Table -->
+  <div class="section" id="market">
+    <div class="section-header">
+      <div class="section-title"><span class="dot"></span> Live Market</div>
+      <button class="btn btn-ghost btn-sm" onclick="fetchCryptoData()">
+        <i class="fa-solid fa-rotate-right"></i> Refresh
+      </button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Asset</th>
+            <th>Price</th>
+            <th>24h Change</th>
+            <th>Market Cap</th>
+            <th>Volume 24h</th>
+          </tr>
+        </thead>
+        <tbody id="market-body">
+          <tr><td colspan="6" class="loading-cell"><i class="fa-solid fa-spinner spin"></i> Fetching live data…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="section" id="dashboard">
+    <div class="section-header">
+      <div class="section-title"><span class="dot"></span> Dashboard</div>
+    </div>
+    <div class="dash-grid">
+
+      <!-- Chart -->
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-chart-area"></i> Price Chart</div>
+        <div class="chart-tabs" id="chart-tabs">
+          <button class="chart-tab active" onclick="switchChart('bitcoin',7,this)">BTC 7D</button>
+          <button class="chart-tab" onclick="switchChart('ethereum',7,this)">ETH 7D</button>
+          <button class="chart-tab" onclick="switchChart('bitcoin',30,this)">BTC 30D</button>
+          <button class="chart-tab" onclick="switchChart('solana',7,this)">SOL 7D</button>
+        </div>
+        <div class="chart-container">
+          <canvas id="price-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Swap -->
+      <div class="card" id="swap-section">
+        <div class="card-title"><i class="fa-solid fa-shuffle"></i> Swap Tokens</div>
+
+        <div class="swap-box">
+          <div class="swap-label">You Pay</div>
+          <div class="swap-row">
+            <input class="swap-input" type="number" id="pay-amount" placeholder="0.00" min="0" oninput="calcSwap()"/>
+            <select class="token-select" id="pay-token" onchange="calcSwap()">
+              <option value="BTC">BTC</option>
+              <option value="ETH">ETH</option>
+              <option value="SOL">SOL</option>
+              <option value="USDC">USDC</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="swap-arrow-btn" onclick="flipSwap()">
+          <i class="fa-solid fa-arrow-down-up"></i>
+        </button>
+
+        <div class="swap-box">
+          <div class="swap-label">You Receive</div>
+          <div class="swap-row">
+            <input class="swap-input" type="number" id="receive-amount" placeholder="0.00" readonly/>
+            <select class="token-select" id="receive-token" onchange="calcSwap()">
+              <option value="USDC">USDC</option>
+              <option value="ETH">ETH</option>
+              <option value="BTC">BTC</option>
+              <option value="SOL">SOL</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="swap-info">
+          Rate <span id="swap-rate-display">—</span>
+        </div>
+        <div class="swap-info">
+          Slippage <span>0.5%</span>
+        </div>
+        <div class="swap-info">
+          Est. Fee <span>~$0.12</span>
+        </div>
+
+        <button class="btn btn-primary btn-swap" id="swap-btn" onclick="executeSwap()">
+          <i class="fa-solid fa-shuffle"></i> Swap Tokens
+        </button>
+      </div>
+
+      <!-- Portfolio -->
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-briefcase"></i> My Portfolio</div>
+        <div id="portfolio-wrap">
+          <div class="empty">
+            <i class="fa-solid fa-lock"></i>
+            <p>Login to view your portfolio</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction History -->
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Transaction History</div>
+        <div id="tx-wrap">
+          <div class="empty">
+            <i class="fa-solid fa-receipt"></i>
+            <p>No transactions yet</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  © 2025 CryptoVault &nbsp;·&nbsp; <a href="mailto:chideraabraham05@gmail.com">Support</a> &nbsp;·&nbsp; Market data via CoinGecko
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    <h2 id="modal-h">Welcome back</h2>
+    <p class="modal-sub" id="modal-sub">Sign in to access your portfolio.</p>
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-login" onclick="setTab('login')">Login</button>
+      <button class="tab-btn" id="tab-register" onclick="setTab('register')">Register</button>
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="you@example.com" onkeydown="onEnter(event)"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="auth-pass" placeholder="••••••••" onkeydown="onEnter(event)"/>
+    </div>
+    <div class="form-error" id="form-err"></div>
+    <button class="btn btn-primary btn-auth" id="auth-btn" onclick="submitAuth()">
+      Sign In
+    </button>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG — change this if your server runs elsewhere
+// ═══════════════════════════════════════════
+const API = '';  // empty = same origin (works when served from Express)
+
+// ═══ STATE ═══════════════════════════════
+let token = localStorage.getItem('cv_token') || null;
+let userEmail = localStorage.getItem('cv_email') || null;
+let authTab = 'login';
+let chartInst = null;
+let liveRates = { BTC:67000, ETH:3200, SOL:150, USDC:1 };
+
+// ═══ HELPERS ═════════════════════════════
+const $  = id => document.getElementById(id);
+const fmt = n => n >= 1e12 ? `$${(n/1e12).toFixed(2)}T`
+               : n >= 1e9  ? `$${(n/1e9).toFixed(2)}B`
+               : n >= 1e6  ? `$${(n/1e6).toFixed(2)}M`
+               : `$${n.toFixed(2)}`;
+const fmtPrice = n => n >= 1 ? `$${n.toLocaleString(undefined,{maximumFractionDigits:2})}`
+                             : `$${n.toFixed(6)}`;
+const fmtPct = n => {
+  const v = n.toFixed(2);
+  return `<span class="${n>=0?'up':'down'}">${n>=0?'+':''}${v}%</span>`;
+};
+function scrollTo(sel){document.querySelector(sel)?.scrollIntoView({behavior:'smooth'})}
+
+function toast(msg, err=false){
+  const el=document.createElement('div');
+  el.className='toast'+(err?' err':'');
+  el.innerHTML=`<i class="fa-solid fa-${err?'circle-xmark':'circle-check'}" style="color:${err?'var(--accent3)':'var(--accent)'};margin-right:.5rem"></i>${msg}`;
+  $('toast-wrap').appendChild(el);
+  setTimeout(()=>el.remove(),4300);
+}
+
+// ═══ API FETCH ════════════════════════════
+async function apiFetch(path, opts={}){
+  if(token) opts.headers={...opts.headers, Authorization:`Bearer ${token}`};
+  const r = await fetch(API+path, opts);
+  if(r.status===401){
+    clearAuth();
+    toast('Session expired — please login again.', true);
+    return null;
+  }
+  return r.json();
+}
+
+// ═══ AUTH STATE ═══════════════════════════
+function clearAuth(){
+  token=null; userEmail=null;
+  localStorage.removeItem('cv_token');
+  localStorage.removeItem('cv_email');
+  updateNavBtn();
+  $('portfolio-wrap').innerHTML='<div class="empty"><i class="fa-solid fa-lock"></i><p>Login to view your portfolio</p></div>';
+  $('tx-wrap').innerHTML='<div class="empty"><i class="fa-solid fa-receipt"></i><p>No transactions yet</p></div>';
+}
+
+function updateNavBtn(){
+  const btn=$('auth-nav-btn');
+  if(userEmail){
+    $('nav-btn-text').textContent=userEmail.split('@')[0];
+    btn.innerHTML=`<i class="fa-solid fa-user"></i> <span id="nav-btn-text">${userEmail.split('@')[0]}</span>`;
+  } else {
+    btn.innerHTML=`<i class="fa-solid fa-wallet"></i> <span id="nav-btn-text">Connect Wallet</span>`;
+  }
+}
+
+function handleNavAuth(){
+  if(userEmail){ if(confirm('Sign out of CryptoVault?')) logout(); }
+  else openModal();
+}
+
+function logout(){
+  clearAuth();
+  toast('Signed out successfully.');
+}
+
+// ═══ MODAL ════════════════════════════════
+function openModal(){ $('overlay').classList.add('open'); setTimeout(()=>$('auth-email').focus(),200) }
+function closeModal(){ $('overlay').classList.remove('open'); $('form-err').textContent=''; }
+function handleOverlayClick(e){ if(e.target===$('overlay')) closeModal(); }
+function onEnter(e){ if(e.key==='Enter') submitAuth(); }
+
+function setTab(t){
+  authTab=t;
+  $('tab-login').classList.toggle('active',t==='login');
+  $('tab-register').classList.toggle('active',t==='register');
+  $('modal-h').textContent= t==='login'?'Welcome back':'Create Account';
+  $('modal-sub').textContent= t==='login'?'Sign in to your account.':'Join CryptoVault — it\'s free.';
+  $('auth-btn').textContent= t==='login'?'Sign In':'Create Account';
+  $('form-err').textContent='';
+}
+
+async function submitAuth(){
+  const email=$('auth-email').value.trim();
+  const password=$('auth-pass').value;
+  $('form-err').textContent='';
+  if(!email||!password){ $('form-err').textContent='Please fill in all fields.'; return; }
+
+  const btn=$('auth-btn');
+  btn.disabled=true;
+  btn.innerHTML='<i class="fa-solid fa-spinner spin"></i> Please wait…';
+
+  try{
+    if(authTab==='register'){
+      const d=await fetch(API+'/api/register',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email,password})
+      }).then(r=>r.json());
+
+      if(d.error){ $('form-err').textContent=d.error; return; }
+      toast('Account created! Please sign in.');
+      setTab('login');
+      return;
+    }
+
+    // Login
+    const d=await fetch(API+'/api/login',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password})
+    }).then(r=>r.json());
+
+    if(d.error){ $('form-err').textContent=d.error; return; }
+    token=d.token; userEmail=d.email;
+    localStorage.setItem('cv_token',token);
+    localStorage.setItem('cv_email',userEmail);
+    closeModal();
+    updateNavBtn();
+    toast(`Welcome back, ${email.split('@')[0]}! 👋`);
+    loadPortfolio();
+    loadTransactions();
+  } catch(e){
+    $('form-err').textContent='Server error — is the backend running?';
+  } finally {
+    btn.disabled=false;
+    btn.textContent= authTab==='login'?'Sign In':'Create Account';
+  }
+}
+
+// ═══ PORTFOLIO ════════════════════════════
+async function loadPortfolio(){
+  if(!token) return;
+  const data=await apiFetch('/api/portfolio');
+  if(!data) return;
+
+  const total=data.reduce((s,a)=>s+(a.amount*(liveRates[a.symbol]||a.avgPrice||0)),0);
+  const icons={BTC:'₿',ETH:'Ξ',SOL:'◎',USDC:'＄'};
+  const colors={BTC:'#f7931a',ETH:'#627eea',SOL:'#9945ff',USDC:'#2775ca'};
+
+  $('portfolio-wrap').innerHTML=`
+    <div class="portfolio-total">
+      <div class="portfolio-total-label">Total Value</div>
+      <div class="portfolio-total-value">$${total.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+    </div>
+    ${data.map(a=>{
+      const val=a.amount*(liveRates[a.symbol]||a.avgPrice||0);
+      const pct=total>0?((val/total)*100).toFixed(1):0;
+      return `
+      <div class="portfolio-asset">
+        <div class="asset-left">
+          <div class="asset-icon" style="background:${colors[a.symbol]||'var(--border)'}22;color:${colors[a.symbol]||'var(--accent)'}">${icons[a.symbol]||'🪙'}</div>
+          <div>
+            <div class="asset-name">${a.symbol}</div>
+            <div class="asset-bal">${a.amount.toFixed(a.symbol==='USDC'?2:6)} ${a.symbol}</div>
+          </div>
+        </div>
+        <div>
+          <div class="asset-usd">$${val.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+          <div class="asset-pct up">${pct}%</div>
+        </div>
+      </div>`
+    }).join('')}
+  `;
+}
+
+// ═══ TRANSACTIONS ═════════════════════════
+async function loadTransactions(){
+  if(!token) return;
+  const data=await apiFetch('/api/transactions');
+  if(!data||data.length===0){
+    $('tx-wrap').innerHTML='<div class="empty"><i class="fa-solid fa-receipt"></i><p>No transactions yet</p></div>';
+    return;
+  }
+  const timeAgo=ts=>{
+    const s=Math.floor((Date.now()-new Date(ts).getTime())/1000);
+    if(s<60) return `${s}s ago`;
+    if(s<3600) return `${Math.floor(s/60)}m ago`;
+    return `${Math.floor(s/3600)}h ago`;
+  };
+  $('tx-wrap').innerHTML=data.slice().reverse().slice(0,10).map(tx=>`
+    <div class="tx-item">
+      <div class="tx-left">
+        <div class="tx-icon-wrap"><i class="fa-solid fa-shuffle"></i></div>
+        <div>
+          <div class="tx-pair">${tx.fromSymbol} → ${tx.toSymbol}</div>
+          <div class="tx-time">${timeAgo(tx.timestamp)}</div>
+        </div>
+      </div>
+      <div class="tx-amount">
+        <div class="tx-from">-${tx.fromAmount} ${tx.fromSymbol}</div>
+        <div class="tx-to">+${parseFloat(tx.toAmount).toFixed(4)} ${tx.toSymbol}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══ SWAP ══════════════════════════════════
+function calcSwap(){
+  const amt=parseFloat($('pay-amount').value)||0;
+  const from=$('pay-token').value;
+  const to=$('receive-token').value;
+  if(from===to){ $('receive-amount').value=''; $('swap-rate-display').textContent='Same token'; return; }
+  const fromUSD=amt*(liveRates[from]||1);
+  const toAmt=fromUSD/(liveRates[to]||1);
+  $('receive-amount').value=toAmt>0?toAmt.toFixed(to==='USDC'?2:8):'';
+  const rate=((liveRates[from]||1)/(liveRates[to]||1));
+  $('swap-rate-display').textContent=`1 ${from} = ${rate.toFixed(rate>1?2:6)} ${to}`;
+}
+
+function flipSwap(){
+  const pv=$('pay-token').value, rv=$('receive-token').value;
+  $('pay-token').value=rv; $('receive-token').value=pv;
+  calcSwap();
+}
+
+async function executeSwap(){
+  if(!token){ openModal(); return; }
+  const payAmt=parseFloat($('pay-amount').value);
+  const recvAmt=parseFloat($('receive-amount').value);
+  const fromSym=$('pay-token').value;
+  const toSym=$('receive-token').value;
+
+  if(!payAmt||payAmt<=0){ toast('Enter a valid amount.',true); return; }
+  if(fromSym===toSym){ toast('Choose different tokens.',true); return; }
+
+  const btn=$('swap-btn');
+  btn.disabled=true;
+  btn.innerHTML='<i class="fa-solid fa-spinner spin"></i> Processing on-chain…';
+
+  try{
+    const d=await apiFetch('/api/swap',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fromSymbol:fromSym,fromAmount:payAmt,toSymbol:toSym,toAmount:recvAmt})
+    });
+    if(!d) return;
+    if(d.error){ toast(d.error,true); return; }
+    toast(`✅ Swapped ${payAmt} ${fromSym} → ${recvAmt.toFixed(4)} ${toSym}`);
+    $('pay-amount').value='';
+    $('receive-amount').value='';
+    loadPortfolio();
+    loadTransactions();
+  } catch(e){
+    toast('Swap failed — server error.',true);
+  } finally{
+    btn.disabled=false;
+    btn.innerHTML='<i class="fa-solid fa-shuffle"></i> Swap Tokens';
+  }
+}
+
+// ═══ MARKET DATA (CoinGecko) ═══════════════
+async function fetchCryptoData(){
+  try{
+    const url='https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=15&page=1&sparkline=false&price_change_percentage=24h';
+    const coins=await fetch(url).then(r=>r.json());
+    if(!Array.isArray(coins)) throw new Error('Bad response');
+    renderMarketTable(coins);
+    buildTicker(coins);
+    // Update live rates
+    coins.forEach(c=>{
+      const sym=c.symbol.toUpperCase();
+      if(liveRates[sym]!==undefined) liveRates[sym]=c.current_price;
+    });
+  } catch(e){
+    $('market-body').innerHTML='<tr><td colspan="6" class="loading-cell" style="color:var(--accent3)"><i class="fa-solid fa-triangle-exclamation"></i> Could not fetch market data</td></tr>';
+  }
+}
+
+function renderMarketTable(coins){
+  $('market-body').innerHTML=coins.map((c,i)=>`
+    <tr onclick="switchChart('${c.id}',7,null)">
+      <td class="rank-num">${i+1}</td>
+      <td>
+        <div class="coin-cell">
+          <img class="coin-icon" src="${c.image}" alt="${c.name}" loading="lazy"/>
+          <div>
+            <div class="coin-name">${c.name}</div>
+            <div class="coin-sym">${c.symbol}</div>
+          </div>
+        </div>
+      </td>
+      <td>${fmtPrice(c.current_price)}</td>
+      <td>${fmtPct(c.price_change_percentage_24h||0)}</td>
+      <td>${fmt(c.market_cap||0)}</td>
+      <td>${fmt(c.total_volume||0)}</td>
+    </tr>
+  `).join('');
+}
+
+function buildTicker(coins){
+  const html=coins.map(c=>{
+    const chg=(c.price_change_percentage_24h||0).toFixed(2);
+    return `<div class="ticker-item"><b>${c.symbol.toUpperCase()}</b> ${fmtPrice(c.current_price)} <span class="${chg>=0?'up':'down'}">${chg>=0?'+':''}${chg}%</span></div>`;
+  }).join('');
+  $('ticker').innerHTML=html+html; // duplicate for seamless loop
+}
+
+// ═══ GLOBAL STATS ══════════════════════════
+async function fetchGlobalStats(){
+  try{
+    const d=await fetch('https://api.coingecko.com/api/v3/global').then(r=>r.json());
+    const g=d.data;
+    $('s-mcap').textContent=fmt(g.total_market_cap.usd);
+    $('s-vol').textContent=fmt(g.total_volume.usd);
+    $('s-dom').textContent=`${g.market_cap_percentage.btc.toFixed(1)}%`;
+    $('s-coins').textContent=g.active_cryptocurrencies.toLocaleString();
+  } catch{}
+}
+
+// ═══ CHART ═════════════════════════════════
+async function loadChart(coinId, days){
+  try{
+    const url=`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`;
+    const d=await fetch(url).then(r=>r.json());
+    const prices=d.prices||[];
+    const labels=prices.map(p=>new Date(p[0]).toLocaleDateString(undefined,days<=7?{weekday:'short'}:{month:'short',day:'numeric'}));
+    const values=prices.map(p=>p[1]);
+    const isUp=values.length>1&&values[values.length-1]>=values[0];
+    const color=isUp?'#00ff9d':'#ff3e6c';
+
+    if(chartInst) chartInst.destroy();
+    chartInst=new Chart($('price-chart'),{
+      type:'line',
+      data:{
+        labels,
+        datasets:[{
+          data:values,
+          borderColor:color,
+          borderWidth:2,
+          pointRadius:0,
+          fill:true,
+          backgroundColor:ctx=>{
+            const g=ctx.chart.ctx.createLinearGradient(0,0,0,ctx.chart.height);
+            g.addColorStop(0,color+'33');
+            g.addColorStop(1,color+'00');
+            return g;
+          },
+          tension:.4
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{
+          mode:'index',intersect:false,
+          callbacks:{label:ctx=>`$${ctx.parsed.y.toLocaleString(undefined,{maximumFractionDigits:2})}`}
+        }},
+        scales:{
+          x:{ticks:{color:'#4e6a7a',font:{family:'Space Mono',size:10},maxTicksLimit:7},grid:{color:'#1a2535'}},
+          y:{ticks:{color:'#4e6a7a',font:{family:'Space Mono',size:10},callback:v=>`$${v>=1000?(v/1000).toFixed(0)+'k':v.toFixed(0)}`},grid:{color:'#1a2535'}}
+        },
+        interaction:{mode:'index',intersect:false}
+      }
+    });
+  } catch(e){console.warn('Chart error',e)}
+}
+
+function switchChart(coinId, days, btn){
+  if(btn){
+    document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  loadChart(coinId,days);
+}
+
+// ═══ MISC ══════════════════════════════════
+function contactSupport(){
+  window.location.href='mailto:chideraabraham05@gmail.com?subject=CryptoVault Support Request';
+}
+
+// ═══ INIT ══════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  updateNavBtn();
+  fetchGlobalStats();
+  fetchCryptoData();
+  loadChart('bitcoin',7);
+
+  if(token){
+    loadPortfolio();
+    loadTransactions();
+  }
+
+  // Refresh market data every 60s
+  setInterval(fetchCryptoData,60000);
+
+  console.log('%c⬡ CryptoVault loaded','color:#00ff9d;font-size:16px;font-weight:bold');
+});
+</script>
+</body>
+</html>
