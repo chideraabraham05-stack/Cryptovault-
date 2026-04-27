@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-card: #161616;
+      --bg-glass: rgba(22, 22, 22, 0.85);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent: #00ff88;
+      --accent-dim: rgba(0, 255, 136, 0.15);
+      --accent-glow: rgba(0, 255, 136, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      --danger: #ff4444;
+      --danger-dim: rgba(255, 68, 68, 0.15);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .glass-card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+    }
+    .glass-card-strong {
+      background: rgba(22, 22, 22, 0.95);
+      backdrop-filter: blur(30px);
+      border: 1px solid rgba(0, 255, 136, 0.15);
+      border-radius: 20px;
+    }
+    .btn-accent {
+      background: var(--accent);
+      color: #000;
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .btn-accent:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--accent-glow);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .btn-outline:hover {
+      background: var(--accent-dim);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .navbar {
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      padding: 8px 16px;
+      border-radius: 8px;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .ticker-wrap {
+      width: 100%;
+      overflow: hidden;
+      background: rgba(0, 255, 136, 0.05);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 0;
+    }
+    .ticker {
+      display: inline-flex;
+      animation: ticker 30s linear infinite;
+      white-space: nowrap;
+    }
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+    .price-up { color: var(--accent); }
+    .price-down { color: #ff6b6b; }
+    .crypto-table th {
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .crypto-table td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 14px;
+    }
+    .crypto-table tr:hover { background: rgba(255, 255, 255, 0.02); }
+    .gradient-text {
+      background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 255, 136, 0.15) 0%, transparent 70%);
+      top: -200px;
+      left: -200px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-glow-2 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 204, 255, 0.1) 0%, transparent 70%);
+      bottom: -100px;
+      right: -100px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .crypto-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-primary);
+      padding: 14px 16px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      width: 100%;
+      transition: all 0.3s;
+    }
+    .crypto-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .crypto-input::placeholder { color: var(--text-muted); }
+    .crypto-select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-primary);
+      padding: 14px 16px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .crypto-select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: rgba(0, 255, 136, 0.3); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0, 255, 136, 0.5); }
+    .tx-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border-left: 3px solid transparent;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      transition: all 0.3s;
+    }
+    .tx-item:hover { background: rgba(255, 255, 255, 0.06); }
+    .tx-item.swap { border-left-color: var(--accent); }
+    .tx-item.transfer { border-left-color: #00ccff; }
+    .tx-item.receive { border-left-color: #ffd700; }
+    .tx-item.admin_credit { border-left-color: #ff8800; }
+    .tx-item.admin_debit { border-left-color: var(--danger); }
+    .tx-item.signup { border-left-color: #aa66ff; }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-confirmed {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--accent);
+    }
+    .badge-pending {
+      background: rgba(255, 193, 7, 0.15);
+      color: #ffc107;
+    }
+    .maintenance-banner {
+      background: linear-gradient(90deg, rgba(255, 68, 68, 0.2), rgba(255, 193, 7, 0.2));
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      color: #ffc107;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeIn 0.6s ease forwards; }
+    .chart-container { position: relative; height: 300px; width: 100%; }
+    .wallet-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 18px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 12px;
+    }
+    .wallet-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      transform: translateX(4px);
+    }
+    .toast-container {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 14px;
+      animation: slideInRight 0.3s ease;
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .toast-success {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .toast-error {
+      background: var(--danger-dim);
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+    .toast-info {
+      background: rgba(0, 204, 255, 0.15);
+      color: #00ccff;
+      border-color: #00ccff;
+    }
+    @media (max-width: 768px) {
+      .hero-title { font-size: 32px !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <% if (maintenanceMode) { %>
+    <div class="maintenance-banner">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      System is currently under maintenance. Some features may be unavailable.
+    </div>
+  <% } %>
+
+  <nav class="navbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="/" class="flex items-center gap-2 text-white font-bold text-xl tracking-tight">
+          <i class="fas fa-cube text-[#00ff88]"></i>
+          <span>CryptoVault</span>
+        </a>
+        <div class="hidden md:flex items-center gap-1">
+          <a href="/" class="nav-link <%= title.includes('CryptoVault -') && !title.includes('Swap') && !title.includes('Portfolio') && !title.includes('Wallet') && !title.includes('Admin') ? 'active' : '' %>">
+            <i class="fas fa-chart-line mr-1 text-xs"></i> Market
+          </a>
+          <a href="/swap" class="nav-link <%= title.includes('Swap') ? 'active' : '' %>">
+            <i class="fas fa-exchange-alt mr-1 text-xs"></i> Swap
+          </a>
+          <a href="/portfolio" class="nav-link <%= title.includes('Portfolio') ? 'active' : '' %>">
+            <i class="fas fa-wallet mr-1 text-xs"></i> Portfolio
+          </a>
+          <a href="/wallet" class="nav-link <%= title.includes('Wallet') ? 'active' : '' %>">
+            <i class="fas fa-link mr-1 text-xs"></i> Wallet
+          </a>
+          <% if (locals.user && locals.user.isAdmin) { %>
+            <a href="/admin" class="nav-link <%= title.includes('Admin') ? 'active' : '' %>">
+              <i class="fas fa-shield-alt mr-1 text-xs"></i> Admin
+            </a>
+          <% } %>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="mailto:<%= SUPPORT_EMAIL %>" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white hover:border-[#00ff88]/50 transition-all">
+            <i class="fas fa-envelope text-xs"></i> Support
+          </a>
+          <% if (locals.user) { %>
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-white/60 hidden lg:inline"><%= locals.user.name %></span>
+              <button onclick="logout()" class="btn-accent text-sm py-2 px-4">
+                <i class="fas fa-sign-out-alt mr-1"></i> Logout
+              </button>
+            </div>
+          <% } else { %>
+            <a href="/login" class="btn-outline text-sm py-2 px-4">
+              <i class="fas fa-user mr-1"></i> Login
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <main>
+    <%- body %>
+  </main>
+
+  <footer class="border-t border-white/5 mt-20 py-10">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <div class="flex items-center justify-center gap-2 mb-3 text-white/40 text-sm">
+        <i class="fas fa-cube text-[#00ff88]"></i>
+        <span class="font-semibold">CryptoVault</span>
+      </div>
+      <p class="text-white/30 text-xs mb-4">Your Digital Assets. Vault-Grade Security.</p>
+      <div class="flex items-center justify-center gap-4 text-white/30 text-xs">
+        <span>&copy; 2025 CryptoVault</span>
+        <span class="text-white/10">|</span>
+        <a href="mailto:<%= SUPPORT_EMAIL %>" class="text-[#00ff88] hover:underline">Support: <%= SUPPORT_EMAIL %></a>
+        <span class="text-white/10">|</span>
+        <span>Market data via CoinGecko</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle';
+      toast.innerHTML = `<i class="fas fa-${icon} mr-2"></i>${message}`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      window.location.href = '/';
+    }
+
+    const socket = io();
+    socket.on('connect', () => { console.log('Socket connected'); });
+    socket.on('announcement', (announcement) => {
+      showToast(`Announcement: ${announcement.message}`, 'info');
+    });
+    socket.on('maintenance', (data) => {
+      if (data.enabled) { showToast('System entering maintenance mode', 'info'); }
+    });
+    socket.on('new_transaction', (tx) => { });
+
+    function formatCurrency(num) {
+      if (num >= 1e12) return '$' + (num / 1e12).toFixed(2) + 'T';
+      if (num >= 1e9) return '$' + (num / 1e9).toFixed(2) + 'B';
+      if (num >= 1e6) return '$' + (num / 1e6).toFixed(2) + 'M';
+      if (num >= 1e3) return '$' + (num / 1e3).toFixed(2) + 'K';
+      return '$' + num.toFixed(2);
+    }
+    function formatNumber(num) {
+      if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+      if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+      if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+      if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+      return num.toFixed(2);
+    }
+    function formatPrice(num) {
+      if (num < 0.01) return '$' + num.toFixed(6);
+      if (num < 1) return '$' + num.toFixed(4);
+      return '$' + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+  </script>
+</body>
+</html>
