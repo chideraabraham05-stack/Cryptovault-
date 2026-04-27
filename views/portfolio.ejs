@@ -1,0 +1,220 @@
+<section class="max-w-7xl mx-auto px-4 py-12">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold mb-1">My Portfolio</h1>
+      <p class="text-white/50">Track your assets, transactions, and performance</p>
+    </div>
+    <div class="text-right">
+      <p class="text-white/40 text-xs uppercase tracking-widest">Total Value</p>
+      <p class="text-3xl font-bold text-[#00ff88] font-mono" id="totalValue">
+        <%= totalValue ? '$' + totalValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '$0.00' %>
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Portfolio Assets -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="glass-card-strong p-6">
+        <h2 class="text-lg font-semibold mb-6 flex items-center gap-2">
+          <i class="fas fa-coins text-[#00ff88]"></i> Assets
+        </h2>
+        <% if (portfolio && Object.keys(portfolio).length > 0) { %>
+          <div class="space-y-3">
+            <% Object.entries(portfolio).forEach(([token, data]) => { %>
+              <div class="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff88]/20 to-[#00ccff]/20 flex items-center justify-center text-sm font-bold text-[#00ff88]">
+                    <%= token.charAt(0) %>
+                  </div>
+                  <div>
+                    <p class="font-semibold"><%= token %></p>
+                    <p class="text-white/40 text-sm font-mono"><%= data.amount.toFixed(6) %> <%= token %></p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold font-mono"><%= formatPrice(data.value) %></p>
+                  <p class="text-white/40 text-xs font-mono">@ <%= formatPrice(data.price) %></p>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="text-center py-10">
+            <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-wallet text-2xl text-white/20"></i>
+            </div>
+            <p class="text-white/40 mb-4">No assets in your portfolio yet</p>
+            <a href="/swap" class="btn-accent">Start Trading</a>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Send Tokens -->
+      <div class="glass-card-strong p-6">
+        <h2 class="text-lg font-semibold mb-6 flex items-center gap-2">
+          <i class="fas fa-paper-plane text-[#00ff88]"></i> Send Tokens
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-1">
+            <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Recipient</label>
+            <input type="text" id="sendRecipient" class="crypto-input" placeholder="Email or wallet address">
+          </div>
+          <div>
+            <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Token</label>
+            <select id="sendToken" class="crypto-select w-full">
+              <% Object.keys(portfolio || {}).forEach(token => { %>
+                <option value="<%= token %>"><%= token %></option>
+              <% }) %>
+              <% if (!portfolio || Object.keys(portfolio).length === 0) { %>
+                <option value="USDC">USDC</option>
+              <% } %>
+            </select>
+          </div>
+          <div>
+            <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Amount</label>
+            <input type="number" id="sendAmount" class="crypto-input" placeholder="0.00" step="0.000001">
+          </div>
+        </div>
+        <button onclick="sendTokens()" class="btn-accent w-full mt-4 py-3">
+          <i class="fas fa-paper-plane mr-2"></i> Send Tokens
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Transaction History -->
+      <div class="glass-card p-6">
+        <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Transaction History</h3>
+        <div id="txHistory" class="space-y-2 max-h-[400px] overflow-y-auto">
+          <% if (transactions && transactions.length > 0) { %>
+            <% transactions.forEach(tx => { %>
+              <div class="tx-item <%= tx.type %>">
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs">
+                  <i class="fas fa-<%= tx.type === 'swap' ? 'exchange-alt' : tx.type === 'transfer' ? 'paper-plane' : tx.type === 'receive' ? 'download' : tx.type === 'admin_credit' ? 'plus' : tx.type === 'admin_debit' ? 'minus' : 'user-plus' %>"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium capitalize"><%= tx.type.replace('_', ' ') %></p>
+                  <p class="text-white/30 text-xs truncate">
+                    <%= tx.amount ? tx.amount.toFixed(4) : '' %> <%= tx.token || '' %>
+                    <% if (tx.toAmount) { %> → <%= tx.toAmount.toFixed(4) %> <%= tx.toToken %><% } %>
+                  </p>
+                  <p class="text-white/20 text-xs"><%= new Date(tx.timestamp).toLocaleString() %></p>
+                </div>
+                <span class="badge badge-confirmed text-xs"><%= tx.status %></span>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="text-white/30 text-sm text-center py-6">No transactions yet</p>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Live Transactions -->
+      <div class="glass-card p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="live-dot"></span>
+          <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest">Live Feed</h3>
+        </div>
+        <div id="liveFeed" class="space-y-2 max-h-[250px] overflow-y-auto">
+          <p class="text-white/20 text-xs text-center py-4">Waiting for new transactions...</p>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="glass-card p-6">
+        <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Quick Actions</h3>
+        <div class="space-y-2">
+          <a href="/swap" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-[#00ff88]/10 transition-all">
+            <i class="fas fa-exchange-alt text-[#00ff88]"></i>
+            <span class="text-sm">Swap Tokens</span>
+          </a>
+          <a href="/wallet" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-[#00ff88]/10 transition-all">
+            <i class="fas fa-link text-[#00ff88]"></i>
+            <span class="text-sm">Connect Wallet</span>
+          </a>
+          <a href="mailto:<%= SUPPORT_EMAIL %>" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-[#00ff88]/10 transition-all">
+            <i class="fas fa-envelope text-[#00ff88]"></i>
+            <span class="text-sm">Support</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Send tokens from portfolio page
+  async function sendTokens() {
+    const recipient = document.getElementById('sendRecipient').value;
+    const token = document.getElementById('sendToken').value;
+    const amount = parseFloat(document.getElementById('sendAmount').value);
+
+    if (!recipient || !amount) {
+      showToast('Please fill all fields', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient, token, amount })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Sent ${amount} ${token} to ${recipient}`, 'success');
+        document.getElementById('sendRecipient').value = '';
+        document.getElementById('sendAmount').value = '';
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        showToast(data.error || 'Transfer failed', 'error');
+      }
+    } catch (err) {
+      showToast('Transfer failed', 'error');
+    }
+  }
+
+  // Listen for real-time transactions
+  socket.on('new_transaction', (tx) => {
+    const liveContainer = document.getElementById('liveFeed');
+    if (liveContainer.querySelector('p.text-center') || liveContainer.querySelector('p.text-white\\/20')) {
+      liveContainer.innerHTML = '';
+    }
+
+    const typeIcons = {
+      swap: 'exchange-alt',
+      transfer: 'paper-plane',
+      receive: 'download',
+      admin_credit: 'plus',
+      admin_debit: 'minus',
+      signup: 'user-plus'
+    };
+
+    const div = document.createElement('div');
+    div.className = `tx-item ${tx.type}`;
+    div.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs">
+        <i class="fas fa-${typeIcons[tx.type] || 'circle'}"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium capitalize">${tx.type.replace('_', ' ')}</p>
+        <p class="text-white/30 text-xs truncate">${tx.amount ? tx.amount.toFixed(4) : ''} ${tx.token || ''}</p>
+        <p class="text-white/20 text-xs">${new Date(tx.timestamp).toLocaleTimeString()}</p>
+      </div>
+      <span class="badge badge-confirmed text-xs">${tx.status}</span>
+    `;
+    liveContainer.prepend(div);
+    if (liveContainer.children.length > 15) liveContainer.lastChild.remove();
+
+    // Also add to history if it's our transaction
+    const historyContainer = document.getElementById('txHistory');
+    if (historyContainer.querySelector('p.text-center')) historyContainer.innerHTML = '';
+
+    const historyDiv = document.createElement('div');
+    historyDiv.className = `tx-item ${tx.type}`;
+    historyDiv.innerHTML = div.innerHTML;
+    historyContainer.prepend(historyDiv);
+  });
+</script>
