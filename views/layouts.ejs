@@ -27,7 +27,13 @@
       --danger: #ff4444;
       --danger-dim: rgba(255, 68, 68, 0.15);
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Space Grotesk', sans-serif;
       background: var(--bg-primary);
@@ -35,19 +41,27 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Glassmorphism cards */
     .glass-card {
       background: var(--bg-glass);
       backdrop-filter: blur(20px);
       border: 1px solid var(--border-color);
       border-radius: 16px;
     }
+
     .glass-card-strong {
       background: rgba(22, 22, 22, 0.95);
       backdrop-filter: blur(30px);
       border: 1px solid rgba(0, 255, 136, 0.15);
       border-radius: 20px;
     }
+
+    /* Accent button */
     .btn-accent {
       background: var(--accent);
       color: #000;
@@ -59,10 +73,12 @@
       transition: all 0.3s ease;
       font-family: 'Space Grotesk', sans-serif;
     }
+
     .btn-accent:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 30px var(--accent-glow);
     }
+
     .btn-outline {
       background: transparent;
       color: var(--accent);
@@ -74,10 +90,13 @@
       transition: all 0.3s ease;
       font-family: 'Space Grotesk', sans-serif;
     }
+
     .btn-outline:hover {
       background: var(--accent-dim);
       box-shadow: 0 0 20px var(--accent-glow);
     }
+
+    /* Navbar */
     .navbar {
       background: rgba(10, 10, 10, 0.85);
       backdrop-filter: blur(20px);
@@ -86,6 +105,7 @@
       top: 0;
       z-index: 1000;
     }
+
     .nav-link {
       color: var(--text-secondary);
       text-decoration: none;
@@ -97,10 +117,14 @@
       padding: 8px 16px;
       border-radius: 8px;
     }
-    .nav-link:hover, .nav-link.active {
+
+    .nav-link:hover,
+    .nav-link.active {
       color: var(--accent);
       background: var(--accent-dim);
     }
+
+    /* Ticker animation */
     .ticker-wrap {
       width: 100%;
       overflow: hidden;
@@ -109,15 +133,18 @@
       border-bottom: 1px solid var(--border-color);
       padding: 10px 0;
     }
+
     .ticker {
       display: inline-flex;
       animation: ticker 30s linear infinite;
       white-space: nowrap;
     }
+
     @keyframes ticker {
       0% { transform: translateX(0); }
       100% { transform: translateX(-50%); }
     }
+
     .ticker-item {
       display: inline-flex;
       align-items: center;
@@ -126,8 +153,12 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
     }
+
+    /* Price change indicators */
     .price-up { color: var(--accent); }
     .price-down { color: #ff6b6b; }
+
+    /* Table styles */
     .crypto-table th {
       color: var(--text-muted);
       font-weight: 500;
@@ -138,18 +169,26 @@
       text-align: left;
       border-bottom: 1px solid var(--border-color);
     }
+
     .crypto-table td {
       padding: 16px;
       border-bottom: 1px solid var(--border-color);
       font-size: 14px;
     }
-    .crypto-table tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+    .crypto-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Gradient text */
     .gradient-text {
       background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+
+    /* Animated background glow */
     .hero-glow {
       position: absolute;
       width: 600px;
@@ -161,6 +200,7 @@
       pointer-events: none;
       z-index: 0;
     }
+
     .hero-glow-2 {
       position: absolute;
       width: 400px;
@@ -172,6 +212,8 @@
       pointer-events: none;
       z-index: 0;
     }
+
+    /* Input fields */
     .crypto-input {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
@@ -183,12 +225,18 @@
       width: 100%;
       transition: all 0.3s;
     }
+
     .crypto-input:focus {
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-dim);
     }
-    .crypto-input::placeholder { color: var(--text-muted); }
+
+    .crypto-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Select */
     .crypto-select {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
@@ -200,14 +248,32 @@
       cursor: pointer;
       transition: all 0.3s;
     }
+
     .crypto-select:focus {
       outline: none;
       border-color: var(--accent);
     }
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg-primary); }
-    ::-webkit-scrollbar-thumb { background: rgba(0, 255, 136, 0.3); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(0, 255, 136, 0.5); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 136, 0.3);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 255, 136, 0.5);
+    }
+
+    /* Transaction feed */
     .tx-item {
       display: flex;
       align-items: center;
@@ -219,13 +285,19 @@
       background: rgba(255, 255, 255, 0.03);
       transition: all 0.3s;
     }
-    .tx-item:hover { background: rgba(255, 255, 255, 0.06); }
+
+    .tx-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
     .tx-item.swap { border-left-color: var(--accent); }
     .tx-item.transfer { border-left-color: #00ccff; }
     .tx-item.receive { border-left-color: #ffd700; }
     .tx-item.admin_credit { border-left-color: #ff8800; }
     .tx-item.admin_debit { border-left-color: var(--danger); }
     .tx-item.signup { border-left-color: #aa66ff; }
+
+    /* Status badge */
     .badge {
       padding: 4px 10px;
       border-radius: 20px;
@@ -234,14 +306,18 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
+
     .badge-confirmed {
       background: rgba(0, 255, 136, 0.15);
       color: var(--accent);
     }
+
     .badge-pending {
       background: rgba(255, 193, 7, 0.15);
       color: #ffc107;
     }
+
+    /* Maintenance banner */
     .maintenance-banner {
       background: linear-gradient(90deg, rgba(255, 68, 68, 0.2), rgba(255, 193, 7, 0.2));
       border: 1px solid rgba(255, 68, 68, 0.3);
@@ -251,6 +327,8 @@
       font-size: 13px;
       font-weight: 500;
     }
+
+    /* Live indicator */
     .live-dot {
       width: 8px;
       height: 8px;
@@ -259,16 +337,34 @@
       display: inline-block;
       animation: pulse 2s infinite;
     }
+
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.5; transform: scale(1.2); }
     }
+
+    /* Animations */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .animate-fade-in { animation: fadeIn 0.6s ease forwards; }
-    .chart-container { position: relative; height: 300px; width: 100%; }
+
+    .animate-fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+
+    /* Chart container */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+    }
+
+    /* Wallet button styles */
     .wallet-btn {
       display: flex;
       align-items: center;
@@ -283,11 +379,20 @@
       transition: all 0.3s;
       margin-bottom: 12px;
     }
+
     .wallet-btn:hover {
       border-color: var(--accent);
       background: var(--accent-dim);
       transform: translateX(4px);
     }
+
+    .wallet-btn img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+    }
+
+    /* Toast notification */
     .toast-container {
       position: fixed;
       top: 80px;
@@ -297,6 +402,7 @@
       flex-direction: column;
       gap: 10px;
     }
+
     .toast {
       padding: 14px 20px;
       border-radius: 12px;
@@ -306,32 +412,41 @@
       backdrop-filter: blur(20px);
       border: 1px solid var(--border-color);
     }
+
     @keyframes slideInRight {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
+
     .toast-success {
       background: rgba(0, 255, 136, 0.15);
       color: var(--accent);
       border-color: var(--accent);
     }
+
     .toast-error {
       background: var(--danger-dim);
       color: var(--danger);
       border-color: var(--danger);
     }
+
     .toast-info {
       background: rgba(0, 204, 255, 0.15);
       color: #00ccff;
       border-color: #00ccff;
     }
+
+    /* Responsive */
     @media (max-width: 768px) {
-      .hero-title { font-size: 32px !important; }
+      .hero-title {
+        font-size: 32px !important;
+      }
     }
   </style>
 </head>
 <body>
 
+  <!-- Maintenance Banner -->
   <% if (maintenanceMode) { %>
     <div class="maintenance-banner">
       <i class="fas fa-exclamation-triangle mr-2"></i>
@@ -339,13 +454,17 @@
     </div>
   <% } %>
 
+  <!-- Navbar -->
   <nav class="navbar">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
         <a href="/" class="flex items-center gap-2 text-white font-bold text-xl tracking-tight">
           <i class="fas fa-cube text-[#00ff88]"></i>
           <span>CryptoVault</span>
         </a>
+
+        <!-- Desktop Nav -->
         <div class="hidden md:flex items-center gap-1">
           <a href="/" class="nav-link <%= title.includes('CryptoVault -') && !title.includes('Swap') && !title.includes('Portfolio') && !title.includes('Wallet') && !title.includes('Admin') ? 'active' : '' %>">
             <i class="fas fa-chart-line mr-1 text-xs"></i> Market
@@ -365,6 +484,8 @@
             </a>
           <% } %>
         </div>
+
+        <!-- Auth Buttons -->
         <div class="flex items-center gap-3">
           <a href="mailto:<%= SUPPORT_EMAIL %>" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white hover:border-[#00ff88]/50 transition-all">
             <i class="fas fa-envelope text-xs"></i> Support
@@ -386,12 +507,15 @@
     </div>
   </nav>
 
+  <!-- Toast Container -->
   <div id="toastContainer" class="toast-container"></div>
 
+  <!-- Main Content -->
   <main>
     <%- body %>
   </main>
 
+  <!-- Footer -->
   <footer class="border-t border-white/5 mt-20 py-10">
     <div class="max-w-7xl mx-auto px-4 text-center">
       <div class="flex items-center justify-center gap-2 mb-3 text-white/40 text-sm">
@@ -410,6 +534,7 @@
   </footer>
 
   <script>
+    // Toast notifications
     function showToast(message, type = 'success') {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
@@ -424,21 +549,36 @@
       }, 4000);
     }
 
+    // Logout
     async function logout() {
       await fetch('/api/logout', { method: 'POST' });
       window.location.href = '/';
     }
 
+    // Socket.io setup
     const socket = io();
-    socket.on('connect', () => { console.log('Socket connected'); });
+    socket.on('connect', () => {
+      console.log('Socket connected');
+    });
+
+    // Listen for announcements
     socket.on('announcement', (announcement) => {
       showToast(`Announcement: ${announcement.message}`, 'info');
     });
-    socket.on('maintenance', (data) => {
-      if (data.enabled) { showToast('System entering maintenance mode', 'info'); }
-    });
-    socket.on('new_transaction', (tx) => { });
 
+    // Listen for maintenance mode
+    socket.on('maintenance', (data) => {
+      if (data.enabled) {
+        showToast('System entering maintenance mode', 'info');
+      }
+    });
+
+    // Listen for new transactions (global)
+    socket.on('new_transaction', (tx) => {
+      // Portfolio and wallet pages will handle their own updates
+    });
+
+    // Format numbers
     function formatCurrency(num) {
       if (num >= 1e12) return '$' + (num / 1e12).toFixed(2) + 'T';
       if (num >= 1e9) return '$' + (num / 1e9).toFixed(2) + 'B';
@@ -446,6 +586,7 @@
       if (num >= 1e3) return '$' + (num / 1e3).toFixed(2) + 'K';
       return '$' + num.toFixed(2);
     }
+
     function formatNumber(num) {
       if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
       if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
@@ -453,6 +594,7 @@
       if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
       return num.toFixed(2);
     }
+
     function formatPrice(num) {
       if (num < 0.01) return '$' + num.toFixed(6);
       if (num < 1) return '$' + num.toFixed(4);
