@@ -1,3 +1,4 @@
+<!-- Portfolio Page -->
 <section class="max-w-7xl mx-auto px-4 py-12">
   <div class="flex items-center justify-between mb-8">
     <div>
@@ -6,9 +7,7 @@
     </div>
     <div class="text-right">
       <p class="text-white/40 text-xs uppercase tracking-widest">Total Value</p>
-      <p class="text-3xl font-bold text-[#00ff88] font-mono" id="totalValue">
-        <%= totalValue ? '$' + totalValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '$0.00' %>
-      </p>
+      <p class="text-3xl font-bold text-[#00ff88] font-mono" id="totalValue">$0.00</p>
     </div>
   </div>
 
@@ -19,35 +18,19 @@
         <h2 class="text-lg font-semibold mb-6 flex items-center gap-2">
           <i class="fas fa-coins text-[#00ff88]"></i> Assets
         </h2>
-        <% if (portfolio && Object.keys(portfolio).length > 0) { %>
-          <div class="space-y-3">
-            <% Object.entries(portfolio).forEach(([token, data]) => { %>
-              <div class="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all">
-                <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ff88]/20 to-[#00ccff]/20 flex items-center justify-center text-sm font-bold text-[#00ff88]">
-                    <%= token.charAt(0) %>
-                  </div>
-                  <div>
-                    <p class="font-semibold"><%= token %></p>
-                    <p class="text-white/40 text-sm font-mono"><%= data.amount.toFixed(6) %> <%= token %></p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="font-bold font-mono"><%= formatPrice(data.value) %></p>
-                  <p class="text-white/40 text-xs font-mono">@ <%= formatPrice(data.price) %></p>
-                </div>
-              </div>
-            <% }) %>
+        
+        <!-- Dynamic assets container -->
+        <div id="assetsList" class="space-y-3">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <div id="emptyAssets" class="hidden text-center py-12">
+          <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-wallet text-3xl text-white/20"></i>
           </div>
-        <% } else { %>
-          <div class="text-center py-10">
-            <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-wallet text-2xl text-white/20"></i>
-            </div>
-            <p class="text-white/40 mb-4">No assets in your portfolio yet</p>
-            <a href="/swap" class="btn-accent">Start Trading</a>
-          </div>
-        <% } %>
+          <p class="text-white/40 mb-4">No assets in your portfolio yet</p>
+          <a href="/swap" class="btn-accent px-8 py-3">Start Trading Now</a>
+        </div>
       </div>
 
       <!-- Send Tokens -->
@@ -55,30 +38,47 @@
         <h2 class="text-lg font-semibold mb-6 flex items-center gap-2">
           <i class="fas fa-paper-plane text-[#00ff88]"></i> Send Tokens
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="md:col-span-1">
-            <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Recipient</label>
-            <input type="text" id="sendRecipient" class="crypto-input" placeholder="Email or wallet address">
-          </div>
+        <div class="space-y-5">
+          <!-- Recipient -->
           <div>
-            <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Token</label>
-            <select id="sendToken" class="crypto-select w-full">
-              <% Object.keys(portfolio || {}).forEach(token => { %>
-                <option value="<%= token %>"><%= token %></option>
-              <% }) %>
-              <% if (!portfolio || Object.keys(portfolio).length === 0) { %>
-                <option value="USDC">USDC</option>
-              <% } %>
-            </select>
+            <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Recipient Email or Wallet</label>
+            <input type="text" id="sendRecipient" class="crypto-input" placeholder="user@example.com or 0x...">
           </div>
-          <div>
-            <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Amount</label>
-            <input type="number" id="sendAmount" class="crypto-input" placeholder="0.00" step="0.000001">
+
+          <!-- Token + Amount -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Token</label>
+              <select id="sendToken" class="crypto-select w-full" onchange="updateSendBalance()">
+                <!-- Populated by JavaScript -->
+              </select>
+            </div>
+            <div>
+              <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Amount</label>
+              <div class="flex gap-3 items-center">
+                <input 
+                  type="number" 
+                  id="sendAmount" 
+                  class="crypto-input flex-1" 
+                  placeholder="0.00" 
+                  step="0.000001" 
+                  min="0">
+                <button onclick="setMaxSend()" 
+                        class="px-7 py-3 text-xs font-semibold rounded-2xl bg-white/10 hover:bg-[#00ff88]/10 border border-white/20 hover:border-[#00ff88]/50 text-white/70 hover:text-[#00ff88] transition-all">
+                  MAX
+                </button>
+              </div>
+              <div class="flex justify-between text-xs mt-2 font-mono">
+                <p class="text-white/30">Balance: <span id="sendBalance">0</span></p>
+                <p class="text-white/30">≈ $<span id="sendUSD">0.00</span></p>
+              </div>
+            </div>
           </div>
+
+          <button onclick="sendTokens()" class="btn-accent w-full py-3">
+            <i class="fas fa-paper-plane mr-2"></i> Send Tokens
+          </button>
         </div>
-        <button onclick="sendTokens()" class="btn-accent w-full mt-4 py-3">
-          <i class="fas fa-paper-plane mr-2"></i> Send Tokens
-        </button>
       </div>
     </div>
 
@@ -88,37 +88,18 @@
       <div class="glass-card p-6">
         <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Transaction History</h3>
         <div id="txHistory" class="space-y-2 max-h-[400px] overflow-y-auto">
-          <% if (transactions && transactions.length > 0) { %>
-            <% transactions.forEach(tx => { %>
-              <div class="tx-item <%= tx.type %>">
-                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs">
-                  <i class="fas fa-<%= tx.type === 'swap' ? 'exchange-alt' : tx.type === 'transfer' ? 'paper-plane' : tx.type === 'receive' ? 'download' : tx.type === 'admin_credit' ? 'plus' : tx.type === 'admin_debit' ? 'minus' : 'user-plus' %>"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium capitalize"><%= tx.type.replace('_', ' ') %></p>
-                  <p class="text-white/30 text-xs truncate">
-                    <%= tx.amount ? tx.amount.toFixed(4) : '' %> <%= tx.token || '' %>
-                    <% if (tx.toAmount) { %> → <%= tx.toAmount.toFixed(4) %> <%= tx.toToken %><% } %>
-                  </p>
-                  <p class="text-white/20 text-xs"><%= new Date(tx.timestamp).toLocaleString() %></p>
-                </div>
-                <span class="badge badge-confirmed text-xs"><%= tx.status %></span>
-              </div>
-            <% }) %>
-          <% } else { %>
-            <p class="text-white/30 text-sm text-center py-6">No transactions yet</p>
-          <% } %>
+          <!-- Populated by JavaScript -->
         </div>
       </div>
 
-      <!-- Live Transactions -->
+      <!-- Live Feed -->
       <div class="glass-card p-6">
         <div class="flex items-center gap-2 mb-4">
           <span class="live-dot"></span>
           <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest">Live Feed</h3>
         </div>
         <div id="liveFeed" class="space-y-2 max-h-[250px] overflow-y-auto">
-          <p class="text-white/20 text-xs text-center py-4">Waiting for new transactions...</p>
+          <p class="text-white/30 text-sm text-center py-8">Waiting for new transactions...</p>
         </div>
       </div>
 
@@ -126,17 +107,17 @@
       <div class="glass-card p-6">
         <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Quick Actions</h3>
         <div class="space-y-2">
-          <a href="/swap" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-[#00ff88]/10 transition-all">
-            <i class="fas fa-exchange-alt text-[#00ff88]"></i>
-            <span class="text-sm">Swap Tokens</span>
+          <a href="/swap" class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 hover:bg-[#00ff88]/10 transition-all group">
+            <i class="fas fa-exchange-alt text-[#00ff88] group-hover:scale-110 transition-transform"></i>
+            <span class="text-sm font-medium">Swap Tokens</span>
           </a>
-          <a href="/wallet" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-[#00ff88]/10 transition-all">
-            <i class="fas fa-link text-[#00ff88]"></i>
-            <span class="text-sm">Connect Wallet</span>
+          <a href="/wallet" class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 hover:bg-[#00ff88]/10 transition-all group">
+            <i class="fas fa-link text-[#00ff88] group-hover:scale-110 transition-transform"></i>
+            <span class="text-sm font-medium">Connect Wallet</span>
           </a>
-          <a href="mailto:<%= SUPPORT_EMAIL %>" class="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-[#00ff88]/10 transition-all">
-            <i class="fas fa-envelope text-[#00ff88]"></i>
-            <span class="text-sm">Support</span>
+          <a href="mailto:support@yourdomain.com" class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 hover:bg-[#00ff88]/10 transition-all group">
+            <i class="fas fa-envelope text-[#00ff88] group-hover:scale-110 transition-transform"></i>
+            <span class="text-sm font-medium">Contact Support</span>
           </a>
         </div>
       </div>
@@ -145,16 +126,163 @@
 </section>
 
 <script>
-  // Send tokens from portfolio page
+  // === PORTFOLIO STATE ===
+  let userPortfolio = <%- JSON.stringify(portfolio || {}) %>;
+  let transactions = <%- JSON.stringify(transactions || []) %>;
+
+  // Calculate total portfolio value
+  function calculateTotalValue() {
+    let total = 0;
+    Object.values(userPortfolio).forEach(asset => {
+      if (asset.value) total += asset.value;
+    });
+    return total;
+  }
+
+  // Render assets list
+  function renderAssets() {
+    const container = document.getElementById('assetsList');
+    const empty = document.getElementById('emptyAssets');
+    container.innerHTML = '';
+
+    if (Object.keys(userPortfolio).length === 0) {
+      empty.classList.remove('hidden');
+      document.getElementById('totalValue').textContent = '$0.00';
+      return;
+    }
+
+    empty.classList.add('hidden');
+
+    Object.entries(userPortfolio).forEach(([symbol, data]) => {
+      const value = data.value || 0;
+      const price = data.price || 0;
+      const amount = data.amount || 0;
+
+      const div = document.createElement('div');
+      div.className = 'flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-all group';
+      div.innerHTML = `
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#00ff88]/20 to-[#00ccff]/20 flex items-center justify-center text-base font-bold text-[#00ff88] ring-2 ring-white/10 group-hover:ring-[#00ff88]/30 transition-all">
+            ${symbol.charAt(0)}
+          </div>
+          <div>
+            <p class="font-semibold text-lg">${symbol}</p>
+            <p class="text-white/40 text-sm font-mono">${amount.toFixed(6)} ${symbol}</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="font-bold font-mono text-xl">$${value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+          <p class="text-white/40 text-xs font-mono">@ $${price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 6})}</p>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    // Update total value
+    const total = calculateTotalValue();
+    document.getElementById('totalValue').textContent = '$' + total.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  // Render transaction history
+  function renderTxHistory() {
+    const container = document.getElementById('txHistory');
+    container.innerHTML = '';
+
+    if (transactions.length === 0) {
+      container.innerHTML = `<p class="text-white/30 text-sm text-center py-12">No transactions yet</p>`;
+      return;
+    }
+
+    transactions.forEach(tx => {
+      const div = document.createElement('div');
+      div.className = `tx-item flex items-center gap-3 p-3 rounded-2xl bg-white/5 hover:bg-white/10 transition-all`;
+      div.innerHTML = `
+        <div class="w-9 h-9 rounded-2xl bg-white/10 flex items-center justify-center text-base flex-shrink-0">
+          <i class="fas fa-${tx.type === 'swap' ? 'exchange-alt' : tx.type === 'transfer' ? 'paper-plane' : tx.type === 'receive' ? 'download' : tx.type === 'admin_credit' ? 'plus' : tx.type === 'admin_debit' ? 'minus' : 'user-plus'}"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium capitalize">${tx.type.replace('_', ' ')}</p>
+          <p class="text-white/30 text-xs truncate">
+            ${tx.amount ? tx.amount.toFixed(4) : ''} ${tx.token || ''}
+            ${tx.toAmount ? `→ ${tx.toAmount.toFixed(4)} ${tx.toToken || ''}` : ''}
+          </p>
+          <p class="text-white/20 text-xs">${new Date(tx.timestamp).toLocaleString([], { 
+            month: 'short', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          })}</p>
+        </div>
+        <span class="badge badge-confirmed text-xs px-4 py-1 rounded-2xl">${tx.status || 'Confirmed'}</span>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // Populate send token dropdown
+  function populateSendTokens() {
+    const select = document.getElementById('sendToken');
+    select.innerHTML = '';
+
+    Object.keys(userPortfolio).forEach(token => {
+      const option = document.createElement('option');
+      option.value = token;
+      option.textContent = token;
+      select.appendChild(option);
+    });
+
+    // Fallback if empty
+    if (Object.keys(userPortfolio).length === 0) {
+      const option = document.createElement('option');
+      option.value = 'USDC';
+      option.textContent = 'USDC';
+      select.appendChild(option);
+    }
+
+    updateSendBalance();
+  }
+
+  // Update balance display when token changes in send form
+  function updateSendBalance() {
+    const token = document.getElementById('sendToken').value;
+    const balanceEl = document.getElementById('sendBalance');
+    const usdEl = document.getElementById('sendUSD');
+
+    const asset = userPortfolio[token];
+    const balance = asset ? asset.amount || 0 : 0;
+    const price = asset ? asset.price || 0 : 0;
+
+    balanceEl.textContent = balance.toFixed(4);
+    usdEl.textContent = (balance * price).toFixed(2);
+  }
+
+  // Set MAX amount in send form
+  function setMaxSend() {
+    const token = document.getElementById('sendToken').value;
+    const asset = userPortfolio[token];
+    if (asset && asset.amount > 0) {
+      document.getElementById('sendAmount').value = asset.amount;
+    }
+  }
+
+  // Send tokens (updated to match swap page pattern)
   async function sendTokens() {
-    const recipient = document.getElementById('sendRecipient').value;
+    const recipient = document.getElementById('sendRecipient').value.trim();
     const token = document.getElementById('sendToken').value;
     const amount = parseFloat(document.getElementById('sendAmount').value);
 
-    if (!recipient || !amount) {
-      showToast('Please fill all fields', 'error');
+    if (!recipient || !amount || amount <= 0) {
+      showToast('Please fill all fields with valid values', 'error');
       return;
     }
+
+    const btn = event.currentTarget;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending...';
 
     try {
       const res = await fetch('/api/transfer', {
@@ -163,58 +291,72 @@
         body: JSON.stringify({ recipient, token, amount })
       });
       const data = await res.json();
+
       if (data.success) {
         showToast(`Sent ${amount} ${token} to ${recipient}`, 'success');
+
+        // Update local portfolio state
+        userPortfolio = data.senderBalance || userPortfolio;
+
+        // Clear form
         document.getElementById('sendRecipient').value = '';
         document.getElementById('sendAmount').value = '';
-        setTimeout(() => location.reload(), 1000);
+
+        // Re-render everything
+        renderAssets();
+        populateSendTokens();
+        renderTxHistory();
       } else {
         showToast(data.error || 'Transfer failed', 'error');
       }
     } catch (err) {
-      showToast('Transfer failed', 'error');
+      showToast('Transfer failed – please try again', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
     }
   }
 
-  // Listen for real-time transactions
-  socket.on('new_transaction', (tx) => {
-    const liveContainer = document.getElementById('liveFeed');
-    if (liveContainer.querySelector('p.text-center') || liveContainer.querySelector('p.text-white\\/20')) {
-      liveContainer.innerHTML = '';
-    }
+  // Live transaction listener (consistent with swap page)
+  if (typeof socket !== 'undefined') {
+    socket.on('new_transaction', (tx) => {
+      // Add to live feed
+      const liveContainer = document.getElementById('liveFeed');
+      const livePlaceholder = liveContainer.querySelector('p');
+      if (livePlaceholder) liveContainer.innerHTML = '';
 
-    const typeIcons = {
-      swap: 'exchange-alt',
-      transfer: 'paper-plane',
-      receive: 'download',
-      admin_credit: 'plus',
-      admin_debit: 'minus',
-      signup: 'user-plus'
-    };
+      const liveDiv = document.createElement('div');
+      liveDiv.className = `tx-item flex items-center gap-3 p-3 rounded-2xl bg-white/5 border-l-2 border-l-[#00ff88]`;
+      liveDiv.innerHTML = `
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium capitalize">${tx.type.replace('_', ' ')}</p>
+          <p class="text-white/30 text-xs truncate">
+            ${tx.amount ? tx.amount.toFixed(4) : ''} ${tx.token || ''} • ${tx.from ? tx.from.slice(0,6) + '...' : ''} → ${tx.to ? tx.to.slice(0,6) + '...' : ''}
+          </p>
+        </div>
+        <span class="badge badge-confirmed text-xs px-3 py-1 rounded-2xl">LIVE</span>
+      `;
+      liveContainer.prepend(liveDiv);
 
-    const div = document.createElement('div');
-    div.className = `tx-item ${tx.type}`;
-    div.innerHTML = `
-      <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-xs">
-        <i class="fas fa-${typeIcons[tx.type] || 'circle'}"></i>
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium capitalize">${tx.type.replace('_', ' ')}</p>
-        <p class="text-white/30 text-xs truncate">${tx.amount ? tx.amount.toFixed(4) : ''} ${tx.token || ''}</p>
-        <p class="text-white/20 text-xs">${new Date(tx.timestamp).toLocaleTimeString()}</p>
-      </div>
-      <span class="badge badge-confirmed text-xs">${tx.status}</span>
-    `;
-    liveContainer.prepend(div);
-    if (liveContainer.children.length > 15) liveContainer.lastChild.remove();
+      if (liveContainer.children.length > 12) liveContainer.lastElementChild.remove();
 
-    // Also add to history if it's our transaction
-    const historyContainer = document.getElementById('txHistory');
-    if (historyContainer.querySelector('p.text-center')) historyContainer.innerHTML = '';
+      // Add to full history
+      transactions.unshift(tx);
+      if (transactions.length > 50) transactions.pop();
+      renderTxHistory();
+    });
+  }
 
-    const historyDiv = document.createElement('div');
-    historyDiv.className = `tx-item ${tx.type}`;
-    historyDiv.innerHTML = div.innerHTML;
-    historyContainer.prepend(historyDiv);
-  });
+  // Initialize portfolio page
+  function initializePortfolio() {
+    renderAssets();
+    renderTxHistory();
+    populateSendTokens();
+    
+    // Initial balance display for send form
+    updateSendBalance();
+  }
+
+  // Start the app
+  initializePortfolio();
 </script>
