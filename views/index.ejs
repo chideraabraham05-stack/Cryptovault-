@@ -1,0 +1,176 @@
+<!-- Home / Market Page -->
+<section class="relative overflow-hidden">
+  <div class="hero-glow"></div>
+  <div class="hero-glow-2"></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 pt-16 pb-12 text-center">
+    <div class="animate-fade-in">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#00ff88]/30 bg-[#00ff88]/5 mb-8">
+        <span class="live-dot"></span>
+        <span class="text-xs font-mono text-[#00ff88] tracking-wider uppercase">Live Market Data &middot; Real-Time Prices</span>
+      </div>
+
+      <h1 class="hero-title text-5xl md:text-7xl font-bold mb-6 leading-tight tracking-tight">
+        Your Digital Assets.<br>
+        <span class="gradient-text">Vault-Grade</span> Security.
+      </h1>
+
+      <p class="text-white/50 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+        Track, swap, and manage your crypto portfolio in one powerful dashboard. Built for the next generation of DeFi.
+      </p>
+
+      <div class="flex items-center justify-center gap-4 flex-wrap">
+        <a href="/swap" class="btn-accent text-lg px-8 py-4">
+          <i class="fas fa-rocket mr-2"></i> Start Trading
+        </a>
+        <a href="#market" class="btn-outline text-lg px-8 py-4">
+          <i class="fas fa-chart-bar mr-2"></i> View Markets
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker-wrap mt-8">
+  <div class="ticker" id="tickerContent">
+    <% prices.forEach(coin => { %>
+      <div class="ticker-item">
+        <span class="font-semibold text-white/80"><%= coin.symbol %></span>
+        <span class="text-white/60"><%= formatPrice(coin.price) %></span>
+        <span class="<%= coin.change24h >= 0 ? 'price-up' : 'price-down' %>">
+          <%= coin.change24h >= 0 ? '+' : '' %><%= coin.change24h.toFixed(2) %>
+        </span>
+      </div>
+    <% }) %>
+    <% prices.forEach(coin => { %>
+      <div class="ticker-item">
+        <span class="font-semibold text-white/80"><%= coin.symbol %></span>
+        <span class="text-white/60"><%= formatPrice(coin.price) %></span>
+        <span class="<%= coin.change24h >= 0 ? 'price-up' : 'price-down' %>">
+          <%= coin.change24h >= 0 ? '+' : '' %><%= coin.change24h.toFixed(2) %>
+        </span>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<section class="max-w-7xl mx-auto px-4 py-12">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="glass-card p-6">
+      <p class="text-white/40 text-xs uppercase tracking-widest mb-2">Global Market Cap</p>
+      <p class="text-2xl font-bold text-[#00ff88] font-mono"><%= formatCurrency(stats.marketCap) %></p>
+    </div>
+    <div class="glass-card p-6">
+      <p class="text-white/40 text-xs uppercase tracking-widest mb-2">24h Volume</p>
+      <p class="text-2xl font-bold text-[#00ff88] font-mono"><%= formatCurrency(stats.volume24h) %></p>
+    </div>
+    <div class="glass-card p-6">
+      <p class="text-white/40 text-xs uppercase tracking-widest mb-2">BTC Dominance</p>
+      <p class="text-2xl font-bold text-[#00ff88] font-mono"><%= stats.btcDominance %>%</p>
+    </div>
+    <div class="glass-card p-6">
+      <p class="text-white/40 text-xs uppercase tracking-widest mb-2">Active Cryptos</p>
+      <p class="text-2xl font-bold text-[#00ff88] font-mono"><%= stats.activeCryptos %></p>
+    </div>
+  </div>
+</section>
+
+<section id="market" class="max-w-7xl mx-auto px-4 pb-20">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <span class="live-dot"></span>
+      <h2 class="text-xl font-bold">Live Market</h2>
+    </div>
+    <button onclick="refreshPrices()" class="btn-outline text-sm py-2 px-4">
+      <i class="fas fa-sync-alt mr-1" id="refreshIcon"></i> Refresh
+    </button>
+  </div>
+
+  <div class="glass-card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="crypto-table w-full">
+        <thead>
+          <tr><th>#</th><th>Asset</th><th>Price</th><th>24h Change</th><th class="hidden sm:table-cell">Market Cap</th><th class="hidden md:table-cell">Volume 24h</th><th>Action</th></tr>
+        </thead>
+        <tbody id="marketTableBody">
+          <% prices.forEach((coin, i) => { %>
+            <tr>
+              <td class="text-white/40 font-mono"><%= i + 1 %></td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#00ff88]/20 to-[#00ccff]/20 flex items-center justify-center text-xs font-bold text-[#00ff88]">
+                    <%= coin.symbol.charAt(0) %>
+                  </div>
+                  <div>
+                    <p class="font-semibold text-sm"><%= coin.name %></p>
+                    <p class="text-white/40 text-xs font-mono"><%= coin.symbol %></p>
+                  </div>
+                </div>
+              </td>
+              <td class="font-mono font-semibold"><%= formatPrice(coin.price) %></td>
+              <td class="<%= coin.change24h >= 0 ? 'price-up' : 'price-down' %> font-mono">
+                <i class="fas fa-caret-<%= coin.change24h >= 0 ? 'up' : 'down' %> mr-1"></i>
+                <%= coin.change24h >= 0 ? '+' : '' %><%= coin.change24h.toFixed(2) %>
+              </td>
+              <td class="hidden sm:table-cell text-white/60 font-mono text-sm"><%= formatCurrency(coin.marketCap) %></td>
+              <td class="hidden md:table-cell text-white/60 font-mono text-sm"><%= formatCurrency(coin.volume24h) %></td>
+              <td>
+                <a href="/swap?from=USDC&to=<%= coin.symbol %>" class="text-xs px-3 py-1.5 rounded-lg bg-[#00ff88]/10 text-[#00ff88] hover:bg-[#00ff88]/20 transition-all">
+                  <i class="fas fa-exchange-alt mr-1"></i> Swap
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<% if (locals.user) { %>
+<section class="max-w-7xl mx-auto px-4 pb-20">
+  <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+    <i class="fas fa-user-circle text-[#00ff88]"></i> Quick Portfolio
+  </h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <% if (locals.user.portfolio && Object.keys(locals.user.portfolio).length > 0) { %>
+      <% Object.entries(locals.user.portfolio).forEach(([token, amount]) => { %>
+        <% const coin = prices.find(p => p.symbol === token); %>
+        <% const value = coin ? amount * coin.price : 0; %>
+        <div class="glass-card p-5 flex items-center justify-between">
+          <div>
+            <p class="text-white/40 text-xs uppercase tracking-wider"><%= token %></p>
+            <p class="text-lg font-bold font-mono"><%= amount.toFixed(4) %></p>
+            <p class="text-white/40 text-xs"><%= formatPrice(value) %></p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-[#00ff88]/10 flex items-center justify-center text-[#00ff88]">
+            <i class="fas fa-coins"></i>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="glass-card p-6 text-center col-span-full">
+        <p class="text-white/40 mb-3">No assets yet. Start trading to build your portfolio!</p>
+        <a href="/swap" class="btn-accent text-sm">Go to Swap</a>
+      </div>
+    <% } %>
+  </div>
+</section>
+<% } %>
+
+<script>
+  async function refreshPrices() {
+    const icon = document.getElementById('refreshIcon');
+    icon.classList.add('fa-spin');
+    try {
+      const res = await fetch('/api/prices');
+      const data = await res.json();
+      showToast('Prices updated', 'success');
+    } catch (err) {
+      showToast('Failed to refresh', 'error');
+    } finally {
+      setTimeout(() => icon.classList.remove('fa-spin'), 1000);
+    }
+  }
+  setInterval(() => { location.reload(); }, 60000);
+</script>
