@@ -3,14 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CryptoVault - Secure crypto trading, portfolio tracking, and wallet management with institutional-grade security.">
   <title><%= title %></title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+  
+  <!-- Tailwind Configuration (required for custom classes) -->
+  <script>
+    tailwind.config = {
+      content: [],
+      theme: {
+        extend: {}
+      }
+    }
+  </script>
+
+  <!-- Font Awesome (updated to latest stable version) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  
+  <!-- Chart.js, Socket.io, Ethers (with defer for better performance) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js" defer></script>
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --bg-primary: #0a0a0a;
@@ -448,16 +468,19 @@
 
   <!-- Maintenance Banner -->
   <% if (maintenanceMode) { %>
-    <div class="maintenance-banner">
+    <div class="maintenance-banner" role="alert">
       <i class="fas fa-exclamation-triangle mr-2"></i>
       System is currently under maintenance. Some features may be unavailable.
     </div>
   <% } %>
 
-  <!-- Navbar -->
+  <!-- Navbar (fully corrected with mobile menu) -->
   <nav class="navbar">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Main navbar row -->
       <div class="flex items-center justify-between h-16">
+        
         <!-- Logo -->
         <a href="/" class="flex items-center gap-2 text-white font-bold text-xl tracking-tight">
           <i class="fas fa-cube text-[#00ff88]"></i>
@@ -485,11 +508,22 @@
           <% } %>
         </div>
 
-        <!-- Auth Buttons -->
+        <!-- Right side: Mobile button + Auth -->
         <div class="flex items-center gap-3">
+          
+          <!-- Mobile Menu Button -->
+          <button 
+            id="mobileMenuBtn"
+            class="md:hidden text-2xl text-white/70 hover:text-[#00ff88] transition-colors p-2 -mr-2"
+            aria-label="Toggle mobile menu">
+            <i class="fas fa-bars"></i>
+          </button>
+
+          <!-- Support Button -->
           <a href="mailto:<%= SUPPORT_EMAIL %>" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-sm text-white/60 hover:text-white hover:border-[#00ff88]/50 transition-all">
             <i class="fas fa-envelope text-xs"></i> Support
           </a>
+          
           <% if (locals.user) { %>
             <div class="flex items-center gap-3">
               <span class="text-sm text-white/60 hidden lg:inline"><%= locals.user.name %></span>
@@ -502,8 +536,31 @@
               <i class="fas fa-user mr-1"></i> Login
             </a>
           <% } %>
+
         </div>
       </div>
+
+      <!-- Mobile Nav Menu -->
+      <div id="mobileMenu" class="hidden md:hidden bg-[#0a0a0a] border-b border-white/10 px-4 pb-6 pt-2 flex flex-col gap-1">
+        <a href="/" onclick="closeMobileMenu()" class="nav-link py-4 px-4 text-base <%= title.includes('CryptoVault -') && !title.includes('Swap') && !title.includes('Portfolio') && !title.includes('Wallet') && !title.includes('Admin') ? 'active' : '' %>">
+          <i class="fas fa-chart-line mr-1 text-xs"></i> Market
+        </a>
+        <a href="/swap" onclick="closeMobileMenu()" class="nav-link py-4 px-4 text-base <%= title.includes('Swap') ? 'active' : '' %>">
+          <i class="fas fa-exchange-alt mr-1 text-xs"></i> Swap
+        </a>
+        <a href="/portfolio" onclick="closeMobileMenu()" class="nav-link py-4 px-4 text-base <%= title.includes('Portfolio') ? 'active' : '' %>">
+          <i class="fas fa-wallet mr-1 text-xs"></i> Portfolio
+        </a>
+        <a href="/wallet" onclick="closeMobileMenu()" class="nav-link py-4 px-4 text-base <%= title.includes('Wallet') ? 'active' : '' %>">
+          <i class="fas fa-link mr-1 text-xs"></i> Wallet
+        </a>
+        <% if (locals.user && locals.user.isAdmin) { %>
+          <a href="/admin" onclick="closeMobileMenu()" class="nav-link py-4 px-4 text-base <%= title.includes('Admin') ? 'active' : '' %>">
+            <i class="fas fa-shield-alt mr-1 text-xs"></i> Admin
+          </a>
+        <% } %>
+      </div>
+
     </div>
   </nav>
 
@@ -524,7 +581,7 @@
       </div>
       <p class="text-white/30 text-xs mb-4">Your Digital Assets. Vault-Grade Security.</p>
       <div class="flex items-center justify-center gap-4 text-white/30 text-xs">
-        <span>&copy; 2025 CryptoVault</span>
+        <span>&copy; 2026 CryptoVault</span>
         <span class="text-white/10">|</span>
         <a href="mailto:<%= SUPPORT_EMAIL %>" class="text-[#00ff88] hover:underline">Support: <%= SUPPORT_EMAIL %></a>
         <span class="text-white/10">|</span>
@@ -553,6 +610,42 @@
     async function logout() {
       await fetch('/api/logout', { method: 'POST' });
       window.location.href = '/';
+    }
+
+    // Mobile menu functions
+    function initMobileMenu() {
+      const mobileBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('mobileMenu');
+      
+      if (!mobileBtn || !mobileMenu) return;
+
+      mobileBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        
+        // Toggle icon between bars and X
+        const icon = mobileBtn.querySelector('i');
+        if (icon) {
+          icon.classList.toggle('fa-bars');
+          icon.classList.toggle('fa-xmark');
+        }
+      });
+    }
+
+    function closeMobileMenu() {
+      const mobileMenu = document.getElementById('mobileMenu');
+      if (mobileMenu) {
+        mobileMenu.classList.add('hidden');
+        
+        // Reset icon back to hamburger
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        if (mobileBtn) {
+          const icon = mobileBtn.querySelector('i');
+          if (icon && icon.classList.contains('fa-xmark')) {
+            icon.classList.remove('fa-xmark');
+            icon.classList.add('fa-bars');
+          }
+        }
+      }
     }
 
     // Socket.io setup
@@ -600,6 +693,12 @@
       if (num < 1) return '$' + num.toFixed(4);
       return '$' + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
+
+    // Initialize everything when page loads
+    window.addEventListener('load', () => {
+      initMobileMenu();
+      console.log('%c🚀 CryptoVault layout initialized successfully', 'color:#00ff88; font-weight:600;');
+    });
   </script>
 </body>
 </html>
