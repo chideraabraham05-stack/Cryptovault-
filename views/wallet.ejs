@@ -12,81 +12,89 @@
         <h2 class="text-xl font-semibold mb-2">Choose Wallet</h2>
         <p class="text-white/40 text-sm mb-8">Select your preferred wallet provider to connect</p>
 
-        <button onclick="connectMetaMask()" class="wallet-btn">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" onerror="this.style.display='none'">
-          <div class="w-9 h-9 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-500 text-sm" style="display:none" id="mmFallback">
+        <!-- MetaMask -->
+        <button onclick="connectMetaMask()" class="wallet-btn group">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" class="w-9 h-9" onerror="this.style.display='none'">
+          <div class="w-9 h-9 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-500 text-xl hidden" id="mmFallback">
             <i class="fas fa-fox"></i>
           </div>
-          <div class="text-left">
+          <div class="text-left flex-1">
             <p class="font-semibold">MetaMask</p>
-            <p class="text-white/40 text-xs">Browser Extension / Mobile</p>
+            <p class="text-white/40 text-xs">Browser Extension • Mobile</p>
           </div>
-          <i class="fas fa-chevron-right text-white/20 ml-auto"></i>
+          <i class="fas fa-chevron-right text-white/30 group-hover:text-[#00ff88] transition-colors"></i>
         </button>
 
-        <button onclick="connectWalletConnect()" class="wallet-btn">
-          <div class="w-9 h-9 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
+        <!-- WalletConnect -->
+        <button onclick="connectWalletConnect()" class="wallet-btn group">
+          <div class="w-9 h-9 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-500 text-2xl">
             <i class="fas fa-qrcode"></i>
           </div>
-          <div class="text-left">
+          <div class="text-left flex-1">
             <p class="font-semibold">WalletConnect</p>
-            <p class="text-white/40 text-xs">Scan QR Code</p>
+            <p class="text-white/40 text-xs">Scan with any mobile wallet</p>
           </div>
-          <i class="fas fa-chevron-right text-white/20 ml-auto"></i>
+          <i class="fas fa-chevron-right text-white/30 group-hover:text-[#00ff88] transition-colors"></i>
         </button>
 
-        <button onclick="connectTrustWallet()" class="wallet-btn">
-          <div class="w-9 h-9 rounded-full bg-[#00ff88]/20 flex items-center justify-center text-[#00ff88]">
+        <!-- Trust Wallet -->
+        <button onclick="connectTrustWallet()" class="wallet-btn group">
+          <div class="w-9 h-9 rounded-2xl bg-[#00ff88]/20 flex items-center justify-center text-[#00ff88] text-2xl">
             <i class="fas fa-shield-alt"></i>
           </div>
-          <div class="text-left">
+          <div class="text-left flex-1">
             <p class="font-semibold">Trust Wallet</p>
-            <p class="text-white/40 text-xs">Mobile Wallet</p>
+            <p class="text-white/40 text-xs">Mobile-first • Multi-chain</p>
           </div>
-          <i class="fas fa-chevron-right text-white/20 ml-auto"></i>
+          <i class="fas fa-chevron-right text-white/30 group-hover:text-[#00ff88] transition-colors"></i>
         </button>
 
-        <button onclick="connectCoinbase()" class="wallet-btn">
-          <div class="w-9 h-9 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-500">
+        <!-- Coinbase Wallet -->
+        <button onclick="connectCoinbase()" class="wallet-btn group">
+          <div class="w-9 h-9 rounded-2xl bg-blue-600/20 flex items-center justify-center text-blue-400 text-2xl">
             <i class="fas fa-coins"></i>
           </div>
-          <div class="text-left">
+          <div class="text-left flex-1">
             <p class="font-semibold">Coinbase Wallet</p>
-            <p class="text-white/40 text-xs">Exchange & Wallet</p>
+            <p class="text-white/40 text-xs">Secure &amp; easy to use</p>
           </div>
-          <i class="fas fa-chevron-right text-white/20 ml-auto"></i>
+          <i class="fas fa-chevron-right text-white/30 group-hover:text-[#00ff88] transition-colors"></i>
         </button>
       </div>
 
       <!-- Connected State -->
       <div id="walletConnectedPanel" class="hidden">
         <div class="flex items-center gap-3 mb-6">
-          <div class="w-12 h-12 rounded-full bg-[#00ff88]/20 flex items-center justify-center text-[#00ff88]">
-            <i class="fas fa-check text-lg"></i>
+          <div class="w-12 h-12 rounded-2xl bg-[#00ff88]/20 flex items-center justify-center text-[#00ff88]">
+            <i class="fas fa-check text-2xl"></i>
           </div>
           <div>
             <h2 class="text-xl font-semibold">Wallet Connected</h2>
-            <p class="text-white/40 text-sm">Your wallet is linked to your account</p>
+            <p class="text-white/40 text-sm">You now have full on-chain access</p>
           </div>
         </div>
 
         <div class="space-y-4">
-          <div class="p-4 rounded-xl bg-white/5">
+          <!-- Address -->
+          <div class="p-4 rounded-2xl bg-white/5">
             <p class="text-white/40 text-xs uppercase tracking-widest mb-1">Wallet Address</p>
-            <div class="flex items-center gap-2">
-              <p class="font-mono text-sm break-all" id="walletAddress">—</p>
-              <button onclick="copyAddress()" class="text-white/40 hover:text-[#00ff88] transition-colors">
+            <div class="flex items-center gap-3">
+              <p class="font-mono text-sm break-all flex-1" id="walletAddress">—</p>
+              <button onclick="copyAddress()" class="text-white/40 hover:text-[#00ff88] transition-colors flex items-center gap-1 text-sm">
                 <i class="fas fa-copy"></i>
+                <span class="hidden sm:inline">Copy</span>
               </button>
             </div>
           </div>
 
-          <div class="p-4 rounded-xl bg-white/5">
-            <p class="text-white/40 text-xs uppercase tracking-widest mb-1">ETH Balance</p>
-            <p class="text-2xl font-bold font-mono text-[#00ff88]" id="ethBalance">—</p>
+          <!-- Native Balance -->
+          <div class="p-4 rounded-2xl bg-white/5">
+            <p class="text-white/40 text-xs uppercase tracking-widest mb-1" id="balanceLabel">Native Balance</p>
+            <p class="text-3xl font-bold font-mono text-[#00ff88]" id="nativeBalance">—</p>
           </div>
 
-          <div class="p-4 rounded-xl bg-white/5">
+          <!-- Current Network -->
+          <div class="p-4 rounded-2xl bg-white/5">
             <p class="text-white/40 text-xs uppercase tracking-widest mb-1">Current Network</p>
             <div class="flex items-center gap-2">
               <span class="live-dot"></span>
@@ -94,87 +102,53 @@
             </div>
           </div>
 
+          <!-- Switch Network -->
           <div>
-            <p class="text-white/40 text-xs uppercase tracking-widest mb-2">Switch Network</p>
-            <div class="grid grid-cols-3 gap-2">
-              <button onclick="switchNetwork('ethereum')" class="p-3 rounded-xl bg-white/5 border border-white/10 hover:border-[#00ff88]/50 hover:bg-[#00ff88]/10 transition-all text-center">
-                <i class="fab fa-ethereum text-lg mb-1 block text-blue-400"></i>
-                <span class="text-xs">Ethereum</span>
-              </button>
-              <button onclick="switchNetwork('bsc')" class="p-3 rounded-xl bg-white/5 border border-white/10 hover:border-[#00ff88]/50 hover:bg-[#00ff88]/10 transition-all text-center">
-                <i class="fas fa-coins text-lg mb-1 block text-yellow-400"></i>
-                <span class="text-xs">BSC</span>
-              </button>
-              <button onclick="switchNetwork('polygon')" class="p-3 rounded-xl bg-white/5 border border-white/10 hover:border-[#00ff88]/50 hover:bg-[#00ff88]/10 transition-all text-center">
-                <i class="fas fa-shapes text-lg mb-1 block text-purple-400"></i>
-                <span class="text-xs">Polygon</span>
-              </button>
+            <p class="text-white/40 text-xs uppercase tracking-widest mb-3">Switch Network</p>
+            <div class="grid grid-cols-3 gap-3" id="networkButtons">
+              <!-- Populated by JS for dynamic symbols -->
             </div>
           </div>
         </div>
 
-        <button onclick="disconnectWallet()" class="btn-outline w-full mt-6 py-3 border-red-500/50 text-red-400 hover:bg-red-500/10">
+        <button onclick="disconnectWallet()" class="btn-outline w-full mt-8 py-3 border-red-500/50 text-red-400 hover:bg-red-500/10">
           <i class="fas fa-unlink mr-2"></i> Disconnect Wallet
         </button>
       </div>
     </div>
 
-    <!-- Info & Live Feed -->
+    <!-- Side Content -->
     <div class="space-y-6">
       <!-- Why Connect -->
       <div class="glass-card p-6">
         <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Why Connect?</h3>
         <div class="space-y-4">
           <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#00ff88]/10 flex items-center justify-center text-[#00ff88] text-xs mt-0.5">
-              <i class="fas fa-bolt"></i>
-            </div>
-            <div>
-              <p class="font-medium text-sm">Instant Trading</p>
-              <p class="text-white/40 text-xs">Execute swaps directly from your wallet without intermediaries</p>
-            </div>
+            <div class="w-8 h-8 rounded-2xl bg-[#00ff88]/10 flex items-center justify-center text-[#00ff88] text-xl mt-0.5"><i class="fas fa-bolt"></i></div>
+            <div><p class="font-medium text-sm">Instant Trading</p><p class="text-white/40 text-xs">Execute swaps directly from your wallet</p></div>
           </div>
           <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#00ff88]/10 flex items-center justify-center text-[#00ff88] text-xs mt-0.5">
-              <i class="fas fa-shield-alt"></i>
-            </div>
-            <div>
-              <p class="font-medium text-sm">Self-Custody</p>
-              <p class="text-white/40 text-xs">You remain in full control of your private keys and assets</p>
-            </div>
+            <div class="w-8 h-8 rounded-2xl bg-[#00ff88]/10 flex items-center justify-center text-[#00ff88] text-xl mt-0.5"><i class="fas fa-shield-alt"></i></div>
+            <div><p class="font-medium text-sm">Self-Custody</p><p class="text-white/40 text-xs">You keep full control of your keys</p></div>
           </div>
           <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#00ff88]/10 flex items-center justify-center text-[#00ff88] text-xs mt-0.5">
-              <i class="fas fa-chart-pie"></i>
-            </div>
-            <div>
-              <p class="font-medium text-sm">Portfolio Sync</p>
-              <p class="text-white/40 text-xs">View your on-chain balances alongside your exchange portfolio</p>
-            </div>
+            <div class="w-8 h-8 rounded-2xl bg-[#00ff88]/10 flex items-center justify-center text-[#00ff88] text-xl mt-0.5"><i class="fas fa-chart-pie"></i></div>
+            <div><p class="font-medium text-sm">Portfolio Sync</p><p class="text-white/40 text-xs">Real-time on-chain + exchange balances</p></div>
           </div>
           <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#00ff88]/10 flex items-center justify-center text-[#00ff88] text-xs mt-0.5">
-              <i class="fas fa-globe"></i>
-            </div>
-            <div>
-              <p class="font-medium text-sm">Multi-Chain</p>
-              <p class="text-white/40 text-xs">Switch between Ethereum, BSC, and Polygon networks</p>
-            </div>
+            <div class="w-8 h-8 rounded-2xl bg-[#00ff88]/10 flex items-center justify-center text-[#00ff88] text-xl mt-0.5"><i class="fas fa-globe"></i></div>
+            <div><p class="font-medium text-sm">Multi-Chain</p><p class="text-white/40 text-xs">Ethereum • BSC • Polygon</p></div>
           </div>
         </div>
       </div>
 
-      <!-- Security Note -->
+      <!-- Security Notice -->
       <div class="glass-card p-6">
         <div class="flex items-start gap-3">
-          <div class="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500">
-            <i class="fas fa-exclamation-triangle"></i>
-          </div>
+          <div class="w-10 h-10 rounded-2xl bg-yellow-500/10 flex items-center justify-center text-yellow-500 text-2xl"><i class="fas fa-exclamation-triangle"></i></div>
           <div>
             <h3 class="font-semibold mb-1">Security Notice</h3>
-            <p class="text-white/40 text-xs leading-relaxed">
-              CryptoVault never stores your private keys. All wallet connections are read-only and used solely to display balances and verify ownership. Never share your seed phrase with anyone.
-            </p>
+            <p class="text-white/40 text-xs leading-relaxed">CryptoVault never stores your private keys. Connections are read-only. Never share your seed phrase.</p>
           </div>
         </div>
       </div>
@@ -186,7 +160,7 @@
           <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest">Live Transactions</h3>
         </div>
         <div id="liveFeed" class="space-y-2 max-h-[250px] overflow-y-auto">
-          <p class="text-white/20 text-xs text-center py-4">Waiting for transactions...</p>
+          <p class="text-white/30 text-sm text-center py-8">Waiting for new transactions...</p>
         </div>
       </div>
     </div>
@@ -194,43 +168,40 @@
 </section>
 
 <script>
-  let provider = null;
-  let signer = null;
+  // === STATE ===
   let connectedAddress = null;
-  let currentNetwork = null;
+  let currentNativeSymbol = 'ETH';
 
   const NETWORKS = {
-    ethereum: {
-      chainId: '0x1',
-      chainName: 'Ethereum Mainnet',
-      nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-      rpcUrls: ['https://eth.llamarpc.com'],
-      blockExplorerUrls: ['https://etherscan.io']
-    },
-    bsc: {
-      chainId: '0x38',
-      chainName: 'Binance Smart Chain',
-      nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-      rpcUrls: ['https://bsc-dataseed.binance.org'],
-      blockExplorerUrls: ['https://bscscan.com']
-    },
-    polygon: {
-      chainId: '0x89',
-      chainName: 'Polygon Mainnet',
-      nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
-      rpcUrls: ['https://polygon-rpc.com'],
-      blockExplorerUrls: ['https://polygonscan.com']
-    }
+    ethereum: { chainId: '0x1', name: 'Ethereum', symbol: 'ETH', icon: 'fab fa-ethereum' },
+    bsc:       { chainId: '0x38', name: 'BSC',       symbol: 'BNB', icon: 'fas fa-coins' },
+    polygon:   { chainId: '0x89', name: 'Polygon',   symbol: 'MATIC', icon: 'fas fa-shapes' }
   };
 
-  // Check if already connected
+  // Render network switch buttons
+  function renderNetworkButtons() {
+    const container = document.getElementById('networkButtons');
+    container.innerHTML = '';
+    Object.keys(NETWORKS).forEach(key => {
+      const net = NETWORKS[key];
+      const btn = document.createElement('button');
+      btn.className = 'p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-[#00ff88]/50 hover:bg-[#00ff88]/10 transition-all flex flex-col items-center gap-2';
+      btn.innerHTML = `
+        <i class="${net.icon} text-2xl"></i>
+        <span class="text-xs font-medium">${net.name}</span>
+      `;
+      btn.onclick = () => switchNetwork(key);
+      container.appendChild(btn);
+    });
+  }
+
   async function checkConnection() {
     try {
       const res = await fetch('/api/me');
       const data = await res.json();
-      if (data.user && data.user.walletAddress) {
+      if (data.user?.walletAddress) {
         connectedAddress = data.user.walletAddress;
-        showConnectedState(data.user.walletAddress);
+        showConnectedState(connectedAddress);
       }
     } catch (e) {}
   }
@@ -240,49 +211,47 @@
     document.getElementById('walletConnectedPanel').classList.remove('hidden');
     document.getElementById('walletAddress').textContent = address;
 
-    // Try to get balance via ethers if provider available
+    renderNetworkButtons();
+
     if (window.ethereum) {
-      try {
-        const ethersProvider = new ethers.BrowserProvider(window.ethereum);
-        ethersProvider.getBalance(address).then(bal => {
-          const eth = ethers.formatEther(bal);
-          document.getElementById('ethBalance').textContent = parseFloat(eth).toFixed(4) + ' ETH';
-        }).catch(() => {
-          document.getElementById('ethBalance').textContent = '—';
-        });
-        ethersProvider.getNetwork().then(net => {
-          currentNetwork = net.name || 'Unknown';
-          document.getElementById('currentNetwork').textContent = currentNetwork.charAt(0).toUpperCase() + currentNetwork.slice(1);
-        }).catch(() => {
-          document.getElementById('currentNetwork').textContent = 'Unknown';
-        });
-      } catch (e) {
-        document.getElementById('ethBalance').textContent = '—';
-        document.getElementById('currentNetwork').textContent = 'Unknown';
-      }
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      updateBalanceAndNetwork(provider);
+    }
+  }
+
+  async function updateBalanceAndNetwork(provider) {
+    try {
+      const bal = await provider.getBalance(connectedAddress);
+      const formatted = parseFloat(ethers.formatEther(bal)).toFixed(4);
+      document.getElementById('nativeBalance').textContent = `${formatted} ${currentNativeSymbol}`;
+
+      const net = await provider.getNetwork();
+      const networkName = net.name === 'unknown' ? 'Custom' : net.name;
+      document.getElementById('currentNetwork').textContent = networkName;
+      document.getElementById('balanceLabel').textContent = `${currentNativeSymbol} Balance`;
+    } catch (e) {
+      document.getElementById('nativeBalance').textContent = '—';
     }
   }
 
   async function connectMetaMask() {
     if (!window.ethereum) {
-      showToast('MetaMask not detected. Please install the extension.', 'error');
+      showToast('MetaMask not detected. Please install it.', 'error');
       return;
     }
+    const btn = event.currentTarget;
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
 
     try {
-      const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+      const provider = new ethers.BrowserProvider(window.ethereum);
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-      if (accounts.length === 0) {
-        showToast('No accounts found', 'error');
-        return;
-      }
-
       const address = accounts[0];
-      connectedAddress = address;
-      provider = ethersProvider;
 
-      // Store in session
+      connectedAddress = address;
+      currentNativeSymbol = 'ETH';
+
       const res = await fetch('/api/wallet/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -290,68 +259,49 @@
       });
 
       if (res.ok) {
-        showToast('MetaMask connected successfully!', 'success');
+        showToast('✅ MetaMask connected!', 'success');
         showConnectedState(address);
-      } else {
-        showToast('Failed to save wallet to session', 'error');
       }
     } catch (err) {
-      showToast('Connection failed: ' + err.message, 'error');
+      showToast(err.message || 'Connection failed', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.style.opacity = '1';
     }
   }
 
   async function connectWalletConnect() {
-    showToast('WalletConnect v2 requires a project ID. For demo, please use MetaMask.', 'info');
+    showToast('WalletConnect v2 support coming soon. Use MetaMask for now.', 'info');
   }
 
   async function connectTrustWallet() {
-    if (window.ethereum) {
-      await connectMetaMask(); // Trust Wallet injects as MetaMask
-    } else {
-      showToast('Trust Wallet not detected. Please open in Trust Wallet browser.', 'error');
-    }
+    if (window.ethereum) await connectMetaMask();
+    else showToast('Please open this page inside Trust Wallet.', 'error');
   }
 
   async function connectCoinbase() {
-    if (window.ethereum?.isCoinbaseWallet) {
-      await connectMetaMask();
-    } else {
-      showToast('Coinbase Wallet not detected. Please install the extension or use mobile app.', 'info');
-    }
+    if (window.ethereum?.isCoinbaseWallet) await connectMetaMask();
+    else showToast('Coinbase Wallet not detected.', 'info');
   }
 
   async function switchNetwork(networkKey) {
     const net = NETWORKS[networkKey];
-    if (!net || !window.ethereum) {
-      showToast('Network switch not available', 'error');
-      return;
-    }
+    if (!net || !window.ethereum) return;
+
+    currentNativeSymbol = net.symbol;
 
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: net.chainId }]
       });
-      document.getElementById('currentNetwork').textContent = net.chainName;
-      showToast(`Switched to ${net.chainName}`, 'success');
-
-      // Update balance
-      const ethersProvider = new ethers.BrowserProvider(window.ethereum);
-      const bal = await ethersProvider.getBalance(connectedAddress);
-      const native = ethers.formatEther(bal);
-      document.getElementById('ethBalance').textContent = parseFloat(native).toFixed(4) + ' ' + net.nativeCurrency.symbol;
+      showToast(`Switched to ${net.name}`, 'success');
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await updateBalanceAndNetwork(provider);
     } catch (err) {
-      // If chain not added, try adding it
       if (err.code === 4902) {
-        try {
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [net]
-          });
-          showToast(`${net.chainName} added and switched`, 'success');
-        } catch (addErr) {
-          showToast('Failed to add network', 'error');
-        }
+        await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [net] });
+        showToast(`${net.name} added`, 'success');
       } else {
         showToast(err.message || 'Failed to switch network', 'error');
       }
@@ -369,45 +319,45 @@
       await fetch('/api/wallet/disconnect', { method: 'POST' });
     } catch (e) {}
     connectedAddress = null;
-    provider = null;
     document.getElementById('walletConnectPanel').classList.remove('hidden');
     document.getElementById('walletConnectedPanel').classList.add('hidden');
     showToast('Wallet disconnected', 'info');
   }
 
-  // Listen for account changes
+  // Account & chain listeners
   if (window.ethereum) {
     window.ethereum.on('accountsChanged', (accounts) => {
-      if (accounts.length === 0) {
-        disconnectWallet();
-      } else {
+      if (accounts.length === 0) disconnectWallet();
+      else {
         connectedAddress = accounts[0];
-        showConnectedState(accounts[0]);
+        showConnectedState(connectedAddress);
       }
     });
-    window.ethereum.on('chainChanged', () => {
-      window.location.reload();
+
+    window.ethereum.on('chainChanged', () => window.location.reload());
+  }
+
+  // Live feed (consistent with other pages)
+  if (typeof socket !== 'undefined') {
+    socket.on('new_transaction', (tx) => {
+      const container = document.getElementById('liveFeed');
+      if (container.querySelector('p')) container.innerHTML = '';
+
+      const div = document.createElement('div');
+      div.className = `tx-item flex items-center gap-3 p-3 rounded-2xl bg-white/5`;
+      div.innerHTML = `
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium capitalize">${tx.type.replace('_', ' ')}</p>
+          <p class="text-white/30 text-xs">${tx.amount ? tx.amount.toFixed(4) : ''} ${tx.token || ''} • ${new Date(tx.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
+        </div>
+        <span class="badge badge-confirmed text-xs px-3 py-1 rounded-2xl">LIVE</span>
+      `;
+      container.prepend(div);
+      if (container.children.length > 12) container.lastChild.remove();
     });
   }
 
-  // Live transaction feed
-  socket.on('new_transaction', (tx) => {
-    const container = document.getElementById('liveFeed');
-    if (container.querySelector('p.text-white\\/20')) container.innerHTML = '';
-
-    const div = document.createElement('div');
-    div.className = `tx-item ${tx.type}`;
-    div.innerHTML = `
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium capitalize">${tx.type.replace('_', ' ')}</p>
-        <p class="text-white/30 text-xs">${tx.amount ? tx.amount.toFixed(4) : ''} ${tx.token || ''} • ${new Date(tx.timestamp).toLocaleTimeString()}</p>
-      </div>
-      <span class="badge badge-confirmed text-xs">${tx.status}</span>
-    `;
-    container.prepend(div);
-    if (container.children.length > 15) container.lastChild.remove();
-  });
-
   // Init
   checkConnection();
+  renderNetworkButtons();
 </script>
