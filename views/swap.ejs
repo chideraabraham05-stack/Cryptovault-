@@ -1,0 +1,489 @@
+<section class="max-w-7xl mx-auto px-4 py-12">
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-bold mb-4">Swap Tokens</h1>
+    <p class="text-white/50">Instant token swaps with live price feeds and minimal slippage</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Swap Interface -->
+    <div class="lg:col-span-2">
+      <div class="glass-card-strong p-8">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-lg font-semibold flex items-center gap-2">
+            <i class="fas fa-exchange-alt text-[#00ff88]"></i> Swap
+          </h2>
+          <button onclick="toggleSettings()" class="text-white/40 hover:text-white transition-colors">
+            <i class="fas fa-cog"></i>
+          </button>
+        </div>
+
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="hidden mb-6 p-4 rounded-xl bg-white/5 border border-white/5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm text-white/60">Slippage Tolerance</span>
+            <div class="flex gap-2">
+              <button onclick="setSlippage(0.5)" class="slippage-btn px-3 py-1 rounded-lg text-xs bg-[#00ff88]/20 text-[#00ff88] border border-[#00ff88]/30" data-val="0.5">0.5%</button>
+              <button onclick="setSlippage(1)" class="slippage-btn px-3 py-1 rounded-lg text-xs bg-white/5 text-white/60 border border-white/10" data-val="1">1%</button>
+              <button onclick="setSlippage(2)" class="slippage-btn px-3 py-1 rounded-lg text-xs bg-white/5 text-white/60 border border-white/10" data-val="2">2%</button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-white/60">Transaction Speed</span>
+            <select class="crypto-select text-sm py-2 px-3">
+              <option>Standard</option>
+              <option>Fast</option>
+              <option>Instant</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- You Pay -->
+        <div class="mb-4">
+          <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">You Pay</label>
+          <div class="flex gap-3">
+            <input type="number" id="fromAmount" class="crypto-input flex-1 text-2xl font-mono" placeholder="0.00" step="0.000001" oninput="calculateSwap()">
+            <select id="fromToken" class="crypto-select min-w-[120px] font-semibold" onchange="calculateSwap()">
+              <% prices.forEach(coin => { %>
+                <option value="<%= coin.symbol %>"><%= coin.symbol %></option>
+              <% }) %>
+            </select>
+          </div>
+          <p class="text-white/30 text-xs mt-2 font-mono">Balance: <span id="fromBalance">0</span></p>
+        </div>
+
+        <!-- Swap Arrow -->
+        <div class="flex justify-center -my-2 relative z-10">
+          <button onclick="swapDirection()" class="w-10 h-10 rounded-full bg-[#161616] border border-[#00ff88]/30 flex items-center justify-center text-[#00ff88] hover:bg-[#00ff88]/10 transition-all">
+            <i class="fas fa-arrow-down"></i>
+          </button>
+        </div>
+
+        <!-- You Receive -->
+        <div class="mb-6">
+          <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">You Receive</label>
+          <div class="flex gap-3">
+            <input type="number" id="toAmount" class="crypto-input flex-1 text-2xl font-mono" placeholder="0.00" readonly>
+            <select id="toToken" class="crypto-select min-w-[120px] font-semibold" onchange="calculateSwap()">
+              <% prices.forEach(coin => { %>
+                <option value="<%= coin.symbol %>" <%= coin.symbol === 'USDC' ? 'selected' : '' %>><%= coin.symbol %></option>
+              <% }) %>
+            </select>
+          </div>
+          <p class="text-white/30 text-xs mt-2 font-mono">Balance: <span id="toBalance">0</span></p>
+        </div>
+
+        <!-- Rate Info -->
+        <div class="rounded-xl bg-white/5 p-4 mb-6 space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-white/40">Rate</span>
+            <span class="font-mono text-white/80" id="rateDisplay">—</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-white/40">Slippage</span>
+            <span class="font-mono text-[#00ff88]" id="slippageDisplay">0.5%</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-white/40">Est. Fee</span>
+            <span class="font-mono text-white/80" id="feeDisplay">~$0.00</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-white/40">Minimum Received</span>
+            <span class="font-mono text-white/80" id="minReceived">—</span>
+          </div>
+        </div>
+
+        <button id="swapBtn" onclick="openConfirmModal()" class="btn-accent w-full text-lg py-4" disabled>
+          <i class="fas fa-exchange-alt mr-2"></i> Swap Tokens
+        </button>
+      </div>
+
+      <!-- Send Tokens Form -->
+      <div class="glass-card-strong p-8 mt-6">
+        <h2 class="text-lg font-semibold mb-6 flex items-center gap-2">
+          <i class="fas fa-paper-plane text-[#00ff88]"></i> Send Tokens
+        </h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Recipient Email or Wallet</label>
+            <input type="text" id="sendRecipient" class="crypto-input" placeholder="user@example.com or 0x...">
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-1">
+              <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Token</label>
+              <select id="sendToken" class="crypto-select w-full">
+                <% prices.forEach(coin => { %>
+                  <option value="<%= coin.symbol %>"><%= coin.symbol %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="flex-1">
+              <label class="block text-white/40 text-xs uppercase tracking-widest mb-2">Amount</label>
+              <input type="number" id="sendAmount" class="crypto-input" placeholder="0.00" step="0.000001">
+            </div>
+          </div>
+          <button onclick="sendTokens()" class="btn-outline w-full py-3">
+            <i class="fas fa-paper-plane mr-2"></i> Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side Panel -->
+    <div class="space-y-6">
+      <!-- Price Chart -->
+      <div class="glass-card p-6">
+        <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Price Chart</h3>
+        <div class="flex gap-2 mb-4">
+          <button onclick="loadChart('BTC', 7)" class="chart-btn px-3 py-1 rounded-lg text-xs bg-[#00ff88] text-black font-semibold" data-coin="BTC">BTC 7D</button>
+          <button onclick="loadChart('ETH', 7)" class="chart-btn px-3 py-1 rounded-lg text-xs bg-white/5 text-white/60" data-coin="ETH">ETH 7D</button>
+          <button onclick="loadChart('SOL', 7)" class="chart-btn px-3 py-1 rounded-lg text-xs bg-white/5 text-white/60" data-coin="SOL">SOL 7D</button>
+        </div>
+        <div class="chart-container">
+          <canvas id="priceChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Swaps -->
+      <div class="glass-card p-6">
+        <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">Recent Swaps</h3>
+        <div id="recentSwaps" class="space-y-2 max-h-[300px] overflow-y-auto">
+          <p class="text-white/30 text-sm text-center py-4">No recent swaps</p>
+        </div>
+      </div>
+
+      <!-- Live Feed -->
+      <div class="glass-card p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="live-dot"></span>
+          <h3 class="text-sm font-semibold text-white/40 uppercase tracking-widest">Live Transactions</h3>
+        </div>
+        <div id="liveFeed" class="space-y-2 max-h-[300px] overflow-y-auto">
+          <!-- Populated by socket -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center">
+  <div class="glass-card-strong p-8 max-w-md w-full mx-4 animate-fade-in">
+    <h3 class="text-xl font-bold mb-6 text-center">Confirm Swap</h3>
+    <div class="space-y-4 mb-6">
+      <div class="flex justify-between items-center p-4 rounded-xl bg-white/5">
+        <div>
+          <p class="text-white/40 text-xs">You Pay</p>
+          <p class="text-lg font-bold font-mono"><span id="confirmFromAmount">0</span> <span id="confirmFromToken">BTC</span></p>
+        </div>
+        <i class="fas fa-arrow-right text-[#00ff88]"></i>
+        <div class="text-right">
+          <p class="text-white/40 text-xs">You Receive</p>
+          <p class="text-lg font-bold font-mono"><span id="confirmToAmount">0</span> <span id="confirmToToken">USDC</span></p>
+        </div>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-white/40">Rate</span>
+        <span class="font-mono" id="confirmRate">—</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-white/40">Fee</span>
+        <span class="font-mono text-[#00ff88]" id="confirmFee">~$0.00</span>
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="closeConfirmModal()" class="flex-1 btn-outline py-3">Cancel</button>
+      <button onclick="executeSwap()" class="flex-1 btn-accent py-3" id="executeBtn">
+        <i class="fas fa-check mr-2"></i> Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentSlippage = 0.5;
+  let priceChart = null;
+  let currentChartCoin = 'BTC';
+  let userPortfolio = {};
+
+  // Load user portfolio
+  async function loadUserData() {
+    try {
+      const res = await fetch('/api/me');
+      const data = await res.json();
+      if (data.user) {
+        userPortfolio = data.user.portfolio || {};
+        updateBalances();
+      }
+    } catch (e) { console.log('Not logged in'); }
+  }
+
+  function updateBalances() {
+    const fromToken = document.getElementById('fromToken').value;
+    const toToken = document.getElementById('toToken').value;
+    document.getElementById('fromBalance').textContent = (userPortfolio[fromToken] || 0).toFixed(4);
+    document.getElementById('toBalance').textContent = (userPortfolio[toToken] || 0).toFixed(4);
+  }
+
+  // Price data from server
+  const priceData = <%- JSON.stringify(prices) %>;
+
+  function getPrice(symbol) {
+    const coin = priceData.find(p => p.symbol === symbol);
+    return coin ? coin.price : 0;
+  }
+
+  function calculateSwap() {
+    const fromToken = document.getElementById('fromToken').value;
+    const toToken = document.getElementById('toToken').value;
+    const fromAmount = parseFloat(document.getElementById('fromAmount').value) || 0;
+
+    const fromPrice = getPrice(fromToken);
+    const toPrice = getPrice(toToken);
+
+    if (fromPrice && toPrice && fromAmount > 0) {
+      const fromValue = fromAmount * fromPrice;
+      const fee = fromValue * (currentSlippage / 100);
+      const toValue = fromValue - fee;
+      const toAmount = toValue / toPrice;
+      const minReceived = toAmount * (1 - currentSlippage / 100);
+
+      document.getElementById('toAmount').value = toAmount.toFixed(6);
+      document.getElementById('rateDisplay').textContent = `1 ${fromToken} = ${(fromPrice / toPrice).toFixed(6)} ${toToken}`;
+      document.getElementById('feeDisplay').textContent = `~$${fee.toFixed(2)}`;
+      document.getElementById('minReceived').textContent = `${minReceived.toFixed(6)} ${toToken}`;
+      document.getElementById('swapBtn').disabled = false;
+    } else {
+      document.getElementById('toAmount').value = '';
+      document.getElementById('rateDisplay').textContent = '—';
+      document.getElementById('feeDisplay').textContent = '~$0.00';
+      document.getElementById('minReceived').textContent = '—';
+      document.getElementById('swapBtn').disabled = true;
+    }
+
+    updateBalances();
+  }
+
+  function swapDirection() {
+    const fromToken = document.getElementById('fromToken');
+    const toToken = document.getElementById('toToken');
+    const temp = fromToken.value;
+    fromToken.value = toToken.value;
+    toToken.value = temp;
+    calculateSwap();
+  }
+
+  function setSlippage(val) {
+    currentSlippage = val;
+    document.getElementById('slippageDisplay').textContent = val + '%';
+    document.querySelectorAll('.slippage-btn').forEach(btn => {
+      if (parseFloat(btn.dataset.val) === val) {
+        btn.className = 'slippage-btn px-3 py-1 rounded-lg text-xs bg-[#00ff88]/20 text-[#00ff88] border border-[#00ff88]/30';
+      } else {
+        btn.className = 'slippage-btn px-3 py-1 rounded-lg text-xs bg-white/5 text-white/60 border border-white/10';
+      }
+    });
+    calculateSwap();
+  }
+
+  function toggleSettings() {
+    document.getElementById('settingsPanel').classList.toggle('hidden');
+  }
+
+  function openConfirmModal() {
+    const fromAmount = document.getElementById('fromAmount').value;
+    const toAmount = document.getElementById('toAmount').value;
+    const fromToken = document.getElementById('fromToken').value;
+    const toToken = document.getElementById('toToken').value;
+
+    document.getElementById('confirmFromAmount').textContent = fromAmount;
+    document.getElementById('confirmFromToken').textContent = fromToken;
+    document.getElementById('confirmToAmount').textContent = toAmount;
+    document.getElementById('confirmToToken').textContent = toToken;
+    document.getElementById('confirmRate').textContent = document.getElementById('rateDisplay').textContent;
+    document.getElementById('confirmFee').textContent = document.getElementById('feeDisplay').textContent;
+
+    document.getElementById('confirmModal').classList.remove('hidden');
+    document.getElementById('confirmModal').classList.add('flex');
+  }
+
+  function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.add('hidden');
+    document.getElementById('confirmModal').classList.remove('flex');
+  }
+
+  async function executeSwap() {
+    const btn = document.getElementById('executeBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+
+    try {
+      const res = await fetch('/api/swap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromToken: document.getElementById('fromToken').value,
+          toToken: document.getElementById('toToken').value,
+          amount: parseFloat(document.getElementById('fromAmount').value)
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Swapped ${data.tx.amount} ${data.tx.token} to ${data.tx.toAmount.toFixed(6)} ${data.tx.toToken}`, 'success');
+        userPortfolio = data.newBalance;
+        updateBalances();
+        addRecentSwap(data.tx);
+        document.getElementById('fromAmount').value = '';
+        document.getElementById('toAmount').value = '';
+        calculateSwap();
+      } else {
+        showToast(data.error || 'Swap failed', 'error');
+      }
+    } catch (err) {
+      showToast('Swap failed: ' + err.message, 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check mr-2"></i> Confirm';
+    closeConfirmModal();
+  }
+
+  async function sendTokens() {
+    const recipient = document.getElementById('sendRecipient').value;
+    const token = document.getElementById('sendToken').value;
+    const amount = parseFloat(document.getElementById('sendAmount').value);
+
+    if (!recipient || !amount) {
+      showToast('Please fill all fields', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient, token, amount })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Sent ${amount} ${token} to ${recipient}`, 'success');
+        userPortfolio = data.senderBalance;
+        updateBalances();
+        document.getElementById('sendRecipient').value = '';
+        document.getElementById('sendAmount').value = '';
+      } else {
+        showToast(data.error || 'Transfer failed', 'error');
+      }
+    } catch (err) {
+      showToast('Transfer failed', 'error');
+    }
+  }
+
+  function addRecentSwap(tx) {
+    const container = document.getElementById('recentSwaps');
+    if (container.querySelector('p.text-center')) container.innerHTML = '';
+
+    const div = document.createElement('div');
+    div.className = 'tx-item swap';
+    div.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-[#00ff88]/10 flex items-center justify-center text-[#00ff88] text-xs">
+        <i class="fas fa-exchange-alt"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium truncate">${tx.amount.toFixed(4)} ${tx.token} → ${tx.toAmount.toFixed(4)} ${tx.toToken}</p>
+        <p class="text-white/30 text-xs">${new Date(tx.timestamp).toLocaleTimeString()}</p>
+      </div>
+      <span class="badge badge-confirmed text-xs">${tx.status}</span>
+    `;
+    container.prepend(div);
+  }
+
+  // Chart.js
+  async function loadChart(coin, days) {
+    currentChartCoin = coin;
+    document.querySelectorAll('.chart-btn').forEach(btn => {
+      if (btn.dataset.coin === coin) {
+        btn.className = 'chart-btn px-3 py-1 rounded-lg text-xs bg-[#00ff88] text-black font-semibold';
+      } else {
+        btn.className = 'chart-btn px-3 py-1 rounded-lg text-xs bg-white/5 text-white/60';
+      }
+    });
+
+    // Generate simulated chart data (CoinGecko free tier is rate-limited)
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const basePrice = getPrice(coin);
+    const data = labels.map((_, i) => {
+      const variance = (Math.random() - 0.5) * 0.1;
+      return basePrice * (1 + variance * (i / 7));
+    });
+
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    if (priceChart) priceChart.destroy();
+
+    priceChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: coin + ' Price',
+          data,
+          borderColor: '#00ff88',
+          backgroundColor: 'rgba(0, 255, 136, 0.1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { display: false },
+          y: {
+            display: true,
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+              color: 'rgba(255,255,255,0.4)',
+              font: { family: 'JetBrains Mono', size: 10 },
+              callback: (val) => '$' + val.toFixed(0)
+            }
+          }
+        },
+        interaction: { intersect: false, mode: 'index' }
+      }
+    });
+  }
+
+  // Live transaction feed
+  socket.on('new_transaction', (tx) => {
+    const container = document.getElementById('liveFeed');
+    if (container.querySelector('p.text-center')) container.innerHTML = '';
+
+    const typeColors = {
+      swap: 'border-l-[#00ff88]',
+      transfer: 'border-l-[#00ccff]',
+      receive: 'border-l-[#ffd700]',
+      admin_credit: 'border-l-[#ff8800]',
+      admin_debit: 'border-l-[#ff4444]',
+      signup: 'border-l-[#aa66ff]'
+    };
+
+    const div = document.createElement('div');
+    div.className = `tx-item ${typeColors[tx.type] || ''}`;
+    div.innerHTML = `
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium capitalize">${tx.type.replace('_', ' ')}</p>
+        <p class="text-white/30 text-xs truncate">${tx.amount.toFixed(4)} ${tx.token} • ${tx.from} → ${tx.to}</p>
+      </div>
+      <span class="badge badge-confirmed text-xs">${tx.status}</span>
+    `;
+    container.prepend(div);
+    if (container.children.length > 20) container.lastChild.remove();
+  });
+
+  // Init
+  loadUserData();
+  loadChart('BTC', 7);
+</script>
